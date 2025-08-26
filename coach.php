@@ -2,10 +2,14 @@
 require_once __DIR__.'/partials.php';
 require_coach_or_admin();
 
-$tournaments = pdo()->query("SELECT * FROM tournaments ORDER BY start_date DESC")->fetchAll();
+$showAll = !empty($_GET['all']);
+$query = $showAll
+  ? "SELECT * FROM tournaments ORDER BY start_date ASC"
+  : "SELECT * FROM tournaments WHERE start_date >= CURDATE() ORDER BY start_date ASC";
+$tournaments = pdo()->query($query)->fetchAll();
 header_html('Coach View');
 ?>
-<h2>All Tournaments & Sign-ups</h2>
+<h2>Coach View — <?= $showAll ? 'All tournaments' : 'Upcoming tournaments' ?></h2>
 <?php foreach($tournaments as $t): ?>
   <section class="coach-section">
     <h3><?=h($t['name'])?> — <?=h($t['start_date'])?> → <?=h($t['end_date'])?> (<?=h($t['location'])?>)</h3>
@@ -56,4 +60,11 @@ header_html('Coach View');
     <?php endif; ?>
   </section>
 <?php endforeach; ?>
+<p class="small" style="margin-top: 1rem;">
+  <?php if ($showAll): ?>
+    <a href="/coach.php">Show upcoming only</a>
+  <?php else: ?>
+    <a href="/coach.php?all=1">Show all tournaments (including past)</a>
+  <?php endif; ?>
+</p>
 <?php footer_html(); ?>

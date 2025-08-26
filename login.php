@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php if($error): ?><p class="error"><?=h($error)?></p><?php endif; ?>
     <form method="post">
       <input type="hidden" name="csrf" value="<?=h(csrf_token())?>">
-      <label>Email<input type="email" name="email" required></label>
+      <label>School Email:<input type="email" name="email" required></label>
       <label>Password<input type="password" name="password" required></label>
       <button type="submit">Sign in</button>
     </form>
