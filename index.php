@@ -45,10 +45,10 @@ if ($__announcement !== '') { echo '
   <div class="card" style="background:#fff3cd;border:1px solidrgba(255, 203, 45, 0.95);">
   <h2><strong>Announcement</strong></h2>
   <p>'.nl2br(h($__announcement)).'</p></div>'; }
-$__welcome = Settings::get('welcome_message', '');
-if (!$u['is_admin'] && !$u['is_coach'] && $__welcome !== '') {
+$__new_user_msg = Settings::get('new_user_message', Settings::get('welcome_message', ''));
+if (!$u['is_admin'] && !$u['is_coach'] && $__new_user_msg !== '') {
   $has_any = Signups::userHasAny($u['id']);
-  if (!$has_any) { echo '<div class="card"><p>'.nl2br(h($__welcome)).'</p></div>'; }
+  if (!$has_any) { echo '<div class="card"><p>'.nl2br(h($__new_user_msg)).'</p></div>'; }
 }
 ?>
 <h2>Upcoming Tournaments</h2>

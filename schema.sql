@@ -68,5 +68,5 @@ CREATE TABLE settings (
 INSERT INTO settings (key_name, value) VALUES
   ('email pattern', 'hackleyschool.org'),
   ('announcement', ''),
-  ('welcome_message', '')
+  ('new_user_message', '')
 ON DUPLICATE KEY UPDATE value=VALUES(value);

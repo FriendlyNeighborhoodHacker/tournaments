@@ -18,8 +18,8 @@ $SETTINGS_DEF = [
     'hint'  => 'Shown on the Home and Coach pages when non-empty.',
     'type'  => 'textarea',
   ],
-  'welcome_message' => [
-    'label' => 'Welcome message',
+  'new_user_message' => [
+    'label' => 'New user message',
     'hint'  => 'Shown on Home for non-coach/admin users who have not signed up for any tournaments yet.',
     'type'  => 'textarea',
   ],
@@ -44,7 +44,13 @@ $current = [];
 foreach ($SETTINGS_DEF as $key => $_meta) {
   // Provide sensible defaults
   $default = ($key === 'email pattern') ? 'hackleyschool.org' : '';
-  $current[$key] = Settings::get($key, $default);
+  $val = Settings::get($key, $default);
+  // Backward-compat: if migrating from welcome_message -> new_user_message, prefill from legacy key
+  if ($key === 'new_user_message' && $val === '') {
+    $legacy = Settings::get('welcome_message', '');
+    if ($legacy !== '') $val = $legacy;
+  }
+  $current[$key] = $val;
 }
 
 header_html('Manage Settings');
