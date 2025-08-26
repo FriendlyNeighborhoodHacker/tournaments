@@ -25,7 +25,9 @@ function populatePartners() {
   window.APP.roster.forEach(p => {
     if (!isAdmin && p.id === me) return; // members will include me automatically
     const label = document.createElement('label');
-    label.style.display = 'block';
+    label.style.display = 'flex';
+    label.style.alignItems = 'center';
+    label.style.gap = '8px';
     const cb = document.createElement('input');
     cb.type = 'checkbox';
     cb.name = 'partner_ids[]';
