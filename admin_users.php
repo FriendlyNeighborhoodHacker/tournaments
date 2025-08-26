@@ -1,0 +1,95 @@
+<?php
+require_once __DIR__.'/partials.php';
+require_admin();
+
+$pdo = pdo();
+$msg = null;
+$err = null;
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  require_csrf();
+  if (isset($_POST['create'])) {
+    $hash = password_hash($_POST['password'], PASSWORD_DEFAULT);
+    $st = $pdo->prepare("INSERT INTO users (first_name,last_name,email,phone,password_hash,is_coach,is_admin) VALUES (?,?,?,?,?,?,?)");
+    $st->execute([trim($_POST['first_name']), trim($_POST['last_name']), trim($_POST['email']), trim($_POST['phone']), $hash, (int)!empty($_POST['is_coach']), (int)!empty($_POST['is_admin'])]);
+    $msg = 'User created.';
+  } elseif (isset($_POST['update'])) {
+    $id = (int)$_POST['id'];
+    if (!empty($_POST['password'])) {
+      $hash = password_hash($_POST['password'], PASSWORD_DEFAULT);
+      $st = $pdo->prepare("UPDATE users SET first_name=?, last_name=?, email=?, phone=?, password_hash=?, is_coach=?, is_admin=? WHERE id=?");
+      $st->execute([trim($_POST['first_name']), trim($_POST['last_name']), trim($_POST['email']), trim($_POST['phone']), $hash, (int)!empty($_POST['is_coach']), (int)!empty($_POST['is_admin']), $id]);
+    } else {
+      $st = $pdo->prepare("UPDATE users SET first_name=?, last_name=?, email=?, phone=?, is_coach=?, is_admin=? WHERE id=?");
+      $st->execute([trim($_POST['first_name']), trim($_POST['last_name']), trim($_POST['email']), trim($_POST['phone']), (int)!empty($_POST['is_coach']), (int)!empty($_POST['is_admin']), $id]);
+    }
+    $msg = 'User updated.';
+  } elseif (isset($_POST['delete'])) {
+    try {
+      $st = $pdo->prepare("DELETE FROM users WHERE id=?");
+      $st->execute([(int)$_POST['id']]);
+      $msg = 'User deleted.';
+    } catch (PDOException $e) {
+      $err = 'Cannot delete user who is part of a signup (or referenced elsewhere). Remove their signups first.';
+    }
+  }
+}
+
+$rows = $pdo->query("SELECT * FROM users ORDER BY last_name, first_name")->fetchAll();
+header_html('Manage Users');
+?>
+<h2>Manage Users</h2>
+<?php if($msg):?><p class="flash"><?=$msg?></p><?php endif; ?>
+<?php if($err):?><p class="error"><?=$err?></p><?php endif; ?>
+<div class="grid">
+  <div class="card">
+    <h3>Create</h3>
+    <form method="post" class="stack">
+      <input type="hidden" name="csrf" value="<?=h(csrf_token())?>">
+      <label>First name<input name="first_name" required></label>
+      <label>Last name<input name="last_name" required></label>
+      <label>Email<input type="email" name="email" required></label>
+      <label>Phone<input name="phone"></label>
+      <label>Password<input type="password" name="password" required></label>
+      <label><input type="checkbox" name="is_coach" value="1"> Coach</label>
+      <label><input type="checkbox" name="is_admin" value="1"> Admin</label>
+      <button name="create" class="primary">Add User</button>
+    </form>
+  </div>
+  <div class="card">
+    <h3>Roster</h3>
+    <table class="list">
+      <thead><tr><th>Name</th><th>Email / Phone</th><th>Roles</th><th>Actions</th></tr></thead>
+      <tbody>
+      <?php foreach($rows as $r): ?>
+        <tr>
+          <td><?=h($r['first_name'].' '.$r['last_name'])?></td>
+          <td><?=h($r['email'])?><?php if($r['phone']) echo ' / '.h($r['phone']);?></td>
+          <td><?= $r['is_admin']?'Admin ':'' ?><?= $r['is_coach']?'Coach':'' ?></td>
+          <td>
+            <details>
+              <summary>Edit/Delete</summary>
+              <form method="post" class="stack">
+                <input type="hidden" name="csrf" value="<?=h(csrf_token())?>">
+                <input type="hidden" name="id" value="<?=$r['id']?>">
+                <label>First<input name="first_name" value="<?=h($r['first_name'])?>" required></label>
+                <label>Last<input name="last_name" value="<?=h($r['last_name'])?>" required></label>
+                <label>Email<input type="email" name="email" value="<?=h($r['email'])?>" required></label>
+                <label>Phone<input name="phone" value="<?=h($r['phone'])?>"></label>
+                <label>New password (optional)<input type="password" name="password"></label>
+                <label><input type="checkbox" name="is_coach" value="1" <?= $r['is_coach']?'checked':'' ?>> Coach</label>
+                <label><input type="checkbox" name="is_admin" value="1" <?= $r['is_admin']?'checked':'' ?>> Admin</label>
+                <div class="actions">
+                  <button name="update" class="primary">Save</button>
+                  <button name="delete" class="danger" onclick="return confirm('Delete user?')">Delete</button>
+                </div>
+              </form>
+            </details>
+          </td>
+        </tr>
+      <?php endforeach; ?>
+      </tbody>
+    </table>
+  </div>
+</div>
+<?php footer_html(); ?>
