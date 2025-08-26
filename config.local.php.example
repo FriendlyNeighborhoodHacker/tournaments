@@ -1,0 +1,10 @@
+<?php
+
+// Update for your environment:
+define('DB_HOST', '');
+define('DB_NAME', '');
+define('DB_USER', '');
+define('DB_PASS', '');
+
+define('APP_NAME', 'Debate Team Sign-ups');
+
