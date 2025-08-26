@@ -17,31 +17,39 @@ function closeSignupModal() {
   document.getElementById('signupModal').setAttribute('aria-hidden','true');
 }
 function populatePartners() {
-  const sel = document.getElementById('m_partners');
-  sel.innerHTML = '';
+  const box = document.getElementById('m_partners_box');
+  if (!box) return;
+  box.innerHTML = '';
   const me = window.APP.currentUserId;
   const isAdmin = !!window.APP.isAdmin;
   window.APP.roster.forEach(p => {
     if (!isAdmin && p.id === me) return; // members will include me automatically
-    const opt = document.createElement('option');
-    opt.value = p.id;
-    opt.textContent = `${p.last_name}, ${p.first_name}${p.is_coach ? ' (Coach)' : ''}${p.is_admin ? ' (Admin)' : ''}`;
-    sel.appendChild(opt);
+    const label = document.createElement('label');
+    label.style.display = 'block';
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.name = 'partner_ids[]';
+    cb.value = p.id;
+    cb.style.marginRight = '8px';
+    label.appendChild(cb);
+    const span = document.createElement('span');
+    span.textContent = `${p.last_name}, ${p.first_name}${p.is_coach ? ' (Coach)' : ''}${p.is_admin ? ' (Admin)' : ''}`;
+    label.appendChild(span);
+    box.appendChild(label);
   });
 }
 function toggleMaverick() {
   const on = document.getElementById('m_go_maverick').checked;
   const wrap = document.getElementById('partnerWrap');
-  const sel = document.getElementById('m_partners');
   wrap.style.display = on ? 'none' : 'block';
-  sel.required = !on; // BUGFIX: ensure browser validation doesn't block Maverick submissions
-  if (on) [...sel.options].forEach(o => o.selected = false);
+  const box = document.getElementById('m_partners_box');
+  if (on && box) box.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
 }
 function submitSignupForm(form) {
   const isAdmin = !!window.APP.isAdmin;
   if (!document.getElementById('m_go_maverick').checked) {
-    const sel = document.getElementById('m_partners');
-    const chosen = [...sel.options].filter(o => o.selected).length;
+    const box = document.getElementById('m_partners_box');
+    const chosen = box ? box.querySelectorAll('input[type="checkbox"]:checked').length : 0;
     if (isAdmin) {
       if (chosen < 1 || chosen > 3) { alert('Pick 1–3 members.'); return false; }
     } else {
