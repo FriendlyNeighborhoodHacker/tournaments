@@ -40,9 +40,10 @@ $my_by_t = Signups::aggregateByTournament($signup_ids);
 }
 
 header_html('Home');
+echo '<div class="welcome-banner">Welcome back '.h($u['first_name']).'!</div>';
 $__announcement = Settings::get('announcement', '');
 if ($__announcement !== '') { echo '
-  <div class="card" style="background:#fff3cd;border:1px solidrgba(255, 203, 45, 0.95);">
+  <div class="card" style="background:#fff3cd;border:1px solid #ffeeba;">
   <h2><strong>Announcement</strong></h2>
   <p>'.nl2br(h($__announcement)).'</p></div>'; }
 $__new_user_msg = Settings::get('new_user_message', Settings::get('welcome_message', ''));
