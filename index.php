@@ -41,7 +41,10 @@ $my_by_t = Signups::aggregateByTournament($signup_ids);
 
 header_html('Home');
 $__announcement = Settings::get('announcement', '');
-if ($__announcement !== '') { echo '<h2><strong>Announcement</strong></h2><div class="card" style="background:#fff3cd;border:1px solid #ffeeba;"><p>'.nl2br(h($__announcement)).'</p></div>'; }
+if ($__announcement !== '') { echo '
+  <div class="card" style="background:#fff3cd;border:1px solidrgba(255, 203, 45, 0.95);">
+  <h2><strong>Announcement</strong></h2>
+  <p>'.nl2br(h($__announcement)).'</p></div>'; }
 $__welcome = Settings::get('welcome_message', '');
 if (!$u['is_admin'] && !$u['is_coach'] && $__welcome !== '') {
   $has_any = Signups::userHasAny($u['id']);
