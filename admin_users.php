@@ -41,7 +41,6 @@ header_html('Manage Users');
 <h2>Manage Users</h2>
 <?php if($msg):?><p class="flash"><?=$msg?></p><?php endif; ?>
 <?php if($err):?><p class="error"><?=$err?></p><?php endif; ?>
-<div class="grid">
   <div class="card">
     <h3>Create</h3>
     <form method="post" class="stack">
@@ -91,5 +90,4 @@ header_html('Manage Users');
       </tbody>
     </table>
   </div>
-</div>
 <?php footer_html(); ?>
