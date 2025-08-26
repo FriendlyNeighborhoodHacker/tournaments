@@ -16,10 +16,12 @@ foreach ($tournaments as $t) {
 	$tournaments_by_id[$t['id']] = $t;
 }
 
-$signups = pdo()->query('select s.* from tournaments t
+$st = pdo()->prepare('select s.* from tournaments t
 		inner join signups s on s.tournament_id = t.id
 		inner join signup_members sm on sm.signup_id = s.id
-		where start_date >= CURDATE() and sm.user_id = ' . $u['id'])->fetchAll();
+		where start_date >= CURDATE() and sm.user_id = ?');
+$st->execute([$u['id']]);
+$signups = $st->fetchAll();
 $signup_ids = array();
 $signups_by_id = array();
 foreach ($signups as $signup) {

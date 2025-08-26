@@ -10,7 +10,7 @@ function header_html($title) {
     $nav .= '<a href="/index.php">Home</a> | ';
     if ($u['is_coach'] || $u['is_admin']) $nav .= '<a href="/coach.php">Coach View</a> | ';
     if ($u['is_admin']) $nav .= '<a href="/admin_tournaments.php">Manage Tournaments</a> | <a href="/admin_users.php">Manage Users</a> | ';
-    $nav .= '<a href="/logout.php">Log out</a>';
+    $nav .= '<a href="/change_password.php">Change Password</a> | <a href="/logout.php">Log out</a>';
   }
   echo '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">';
   echo '<title>'.h($title).' - '.h(APP_NAME).'</title>';
