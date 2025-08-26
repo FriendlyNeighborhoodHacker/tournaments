@@ -1,5 +1,6 @@
 <?php // register.php
 require_once __DIR__.'/partials.php';
+require_once __DIR__.'/settings.php';
 
 // If already logged in, go home
 if (current_user()) { header('Location: /index.php'); exit; }
@@ -20,9 +21,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
     $errors[] = 'Valid email is required.';
   } else {
-    // Must end with hackleyschool.org (supports subdomains like students.hackleyschool.org)
-    if (!preg_match('/@([^.@]+\.)*hackleyschool\.org\z/i', $email)) {
-      $errors[] = 'Email must be a hackleyschool.org address.';
+    $pattern = strtolower(Settings::get('email pattern', 'hackleyschool.org'));
+    $domain = strtolower(substr(strrchr($email, '@') ?: '', 1));
+    $ok = ($domain === $pattern) || ($pattern !== '' && str_ends_with($domain, '.'.$pattern));
+    if (!$ok) {
+      $errors[] = 'Email must be a ' . $pattern . ' address.';
     }
   }
   if (strlen($pass) < 8) $errors[] = 'Password must be at least 8 characters.';

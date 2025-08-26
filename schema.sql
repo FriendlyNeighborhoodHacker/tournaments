@@ -55,3 +55,18 @@ CREATE TABLE signup_members (
 INSERT INTO users (first_name,last_name,email,phone,password_hash,is_coach,is_admin)
 VALUES ('Lilly','Rosenthal','lillyjrosenthal123@gmail.com',NULL, '$2y$10$9xH7Jq4v3o6s9k3y8i4rVOyWb0yBYZ5rW.0f9pZ.gG9K6l7lS6b2S', 1,1);
 -- The above hash is for password: Admin123!
+
+-- Application settings
+CREATE TABLE settings (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  key_name VARCHAR(191) NOT NULL UNIQUE,
+  value LONGTEXT NULL,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+-- Default settings (optional)
+INSERT INTO settings (key_name, value) VALUES
+  ('email pattern', 'hackleyschool.org'),
+  ('announcement', ''),
+  ('welcome_message', '')
+ON DUPLICATE KEY UPDATE value=VALUES(value);

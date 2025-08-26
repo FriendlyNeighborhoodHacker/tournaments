@@ -6,6 +6,7 @@ function echo_r($o) {
   echo('</pre>');
 }
 require_once __DIR__.'/partials.php';
+require_once __DIR__.'/settings.php';
 require_login();
 $u = current_user();
 
@@ -57,6 +58,15 @@ foreach ($rows as $row) {
 }
 
 header_html('Home');
+$__announcement = Settings::get('announcement', '');
+if ($__announcement !== '') { echo '<div class="card"><p>'.nl2br(h($__announcement)).'</p></div>'; }
+$__welcome = Settings::get('welcome_message', '');
+if (!$u['is_admin'] && !$u['is_coach'] && $__welcome !== '') {
+  $st0 = pdo()->prepare("SELECT 1 FROM signup_members WHERE user_id=? LIMIT 1");
+  $st0->execute([$u['id']]);
+  $has_any = (bool)$st0->fetchColumn();
+  if (!$has_any) { echo '<div class="card"><p>'.nl2br(h($__welcome)).'</p></div>'; }
+}
 ?>
 <h2>Upcoming Tournaments</h2>
 <?php if(empty($tournaments)): ?>

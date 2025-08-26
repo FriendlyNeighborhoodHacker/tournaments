@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__.'/partials.php';
+require_once __DIR__.'/settings.php';
 require_coach_or_admin();
 
 $showAll = !empty($_GET['all']);
@@ -8,6 +9,8 @@ $query = $showAll
   : "SELECT * FROM tournaments WHERE start_date >= CURDATE() ORDER BY start_date ASC";
 $tournaments = pdo()->query($query)->fetchAll();
 header_html('Coach View');
+$__announcement = Settings::get('announcement', '');
+if ($__announcement !== '') { echo '<div class="card"><p>'.nl2br(h($__announcement)).'</p></div>'; }
 ?>
 <h2>Coach View — <?= $showAll ? 'All tournaments' : 'Upcoming tournaments' ?></h2>
 <?php foreach($tournaments as $t): ?>
