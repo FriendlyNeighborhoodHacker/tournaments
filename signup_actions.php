@@ -13,6 +13,33 @@ if ($action === 'create') {
   $comment       = trim($_POST['comment'] ?? '');
   $partner_ids   = array_map('intval', $_POST['partner_ids'] ?? []);
 
+  // Enforce tournament capacity and signup deadline (if set)
+  $tinfo = $pdo->prepare("SELECT max_teams, signup_deadline FROM tournaments WHERE id=?");
+  $tinfo->execute([$tournament_id]);
+  $tournament = $tinfo->fetch();
+
+  if (!$tournament) { http_response_code(404); exit('Tournament not found'); }
+
+  // Deadline: allowed through the entire deadline date (until 23:59), then blocked starting next day
+  if (!empty($tournament['signup_deadline'])) {
+    $today = date('Y-m-d');
+    if ($today > $tournament['signup_deadline']) {
+      http_response_code(400);
+      exit('The deadline for sign ups for this tournament has passed. Please email to your coaches about signing up for this this tournament.');
+    }
+  }
+
+  // Capacity: if max_teams is set and reached, block new signups
+  if ($tournament['max_teams'] !== null) {
+    $cur = $pdo->prepare("SELECT COUNT(*) FROM signups WHERE tournament_id=?");
+    $cur->execute([$tournament_id]);
+    $currentTeams = (int)$cur->fetchColumn();
+    if ($currentTeams >= (int)$tournament['max_teams']) {
+      http_response_code(400);
+      exit('The maximum number of sign ups for this tournament have been reached. Please email to your coaches about signing up for this this tournament.');
+    }
+  }
+
   // Build full member list
   if ($go_maverick) {
     // Maverick: creator only, even for admins
