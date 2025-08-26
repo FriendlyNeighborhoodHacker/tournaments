@@ -7,22 +7,20 @@ function echo_r($o) {
 }
 require_once __DIR__.'/partials.php';
 require_once __DIR__.'/settings.php';
+require_once __DIR__.'/lib/Tournaments.php';
+require_once __DIR__.'/lib/Users.php';
+require_once __DIR__.'/lib/Signups.php';
 require_login();
 $u = current_user();
 
 // Upcoming tournaments
-$tournaments = pdo()->query("SELECT * FROM tournaments WHERE start_date >= CURDATE() ORDER BY start_date ASC")->fetchAll();
+$tournaments = Tournaments::upcoming();
 $tournaments_by_id = array();
 foreach ($tournaments as $t) {
 	$tournaments_by_id[$t['id']] = $t;
 }
 
-$st = pdo()->prepare('select s.* from tournaments t
-		inner join signups s on s.tournament_id = t.id
-		inner join signup_members sm on sm.signup_id = s.id
-		where start_date >= CURDATE() and sm.user_id = ?');
-$st->execute([$u['id']]);
-$signups = $st->fetchAll();
+$signups = Signups::myUpcomingSignups($u['id']);
 $signup_ids = array();
 $signups_by_id = array();
 foreach ($signups as $signup) {
@@ -33,28 +31,12 @@ foreach ($signups as $signup) {
 $signup_ids = array_keys($signup_ids);
 
 // For client-side: roster (non-admins can only sign themselves + 1–2 partners; admins can pick anyone)
-$roster = pdo()->query("SELECT id, first_name, last_name, email, is_coach, is_admin FROM users ORDER BY last_name, first_name")->fetchAll(PDO::FETCH_ASSOC);
+$roster = Users::roster();
 
 $my_by_t = array();
 if (empty($signup_ids)) {
 } else {
-// Map of my signups by tournament (single query, not inside a loop)
-$st = pdo()->prepare("
-SELECT s.*, sm.tournament_id, cb.first_name cb_fn, cb.last_name cb_ln,
-       GROUP_CONCAT(CONCAT(u.first_name,' ',u.last_name) ORDER BY u.last_name SEPARATOR ', ') AS members
-FROM signups s
-  JOIN users cb ON cb.id = s.created_by_user_id
-  JOIN signup_members sm ON sm.signup_id = s.id
-  JOIN users u ON u.id = sm.user_id
-where s.id in (" . join(',', $signup_ids) . ")
-GROUP BY s.id
-ORDER BY s.created_at ASC
-");
-$st->execute();
-$rows = $st->fetchAll();
-foreach ($rows as $row) {
-  $my_by_t[$row['tournament_id']] = $row;
-}
+$my_by_t = Signups::aggregateByTournament($signup_ids);
 }
 
 header_html('Home');
@@ -62,9 +44,7 @@ $__announcement = Settings::get('announcement', '');
 if ($__announcement !== '') { echo '<div class="card"><p>'.nl2br(h($__announcement)).'</p></div>'; }
 $__welcome = Settings::get('welcome_message', '');
 if (!$u['is_admin'] && !$u['is_coach'] && $__welcome !== '') {
-  $st0 = pdo()->prepare("SELECT 1 FROM signup_members WHERE user_id=? LIMIT 1");
-  $st0->execute([$u['id']]);
-  $has_any = (bool)$st0->fetchColumn();
+  $has_any = Signups::userHasAny($u['id']);
   if (!$has_any) { echo '<div class="card"><p>'.nl2br(h($__welcome)).'</p></div>'; }
 }
 ?>

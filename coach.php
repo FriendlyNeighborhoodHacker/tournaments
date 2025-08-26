@@ -1,13 +1,12 @@
 <?php
 require_once __DIR__.'/partials.php';
 require_once __DIR__.'/settings.php';
+require_once __DIR__.'/lib/Tournaments.php';
+require_once __DIR__.'/lib/Signups.php';
 require_coach_or_admin();
 
 $showAll = !empty($_GET['all']);
-$query = $showAll
-  ? "SELECT * FROM tournaments ORDER BY start_date ASC"
-  : "SELECT * FROM tournaments WHERE start_date >= CURDATE() ORDER BY start_date ASC";
-$tournaments = pdo()->query($query)->fetchAll();
+$tournaments = $showAll ? Tournaments::allAsc() : Tournaments::upcoming();
 header_html('Coach View');
 $__announcement = Settings::get('announcement', '');
 if ($__announcement !== '') { echo '<div class="card"><p>'.nl2br(h($__announcement)).'</p></div>'; }
@@ -17,19 +16,7 @@ if ($__announcement !== '') { echo '<div class="card"><p>'.nl2br(h($__announceme
   <section class="coach-section">
     <h3><?=h($t['name'])?> — <?=h($t['start_date'])?> → <?=h($t['end_date'])?> (<?=h($t['location'])?>)</h3>
     <?php
-      $st = pdo()->prepare("
-        SELECT s.*, cb.first_name cb_fn, cb.last_name cb_ln,
-               GROUP_CONCAT(CONCAT(u.first_name,' ',u.last_name) ORDER BY u.last_name SEPARATOR ', ') AS members
-        FROM signups s
-          JOIN users cb ON cb.id = s.created_by_user_id
-          JOIN signup_members sm ON sm.signup_id = s.id
-          JOIN users u ON u.id = sm.user_id
-        WHERE s.tournament_id = ?
-        GROUP BY s.id
-        ORDER BY s.created_at ASC
-      ");
-      $st->execute([$t['id']]);
-      $rows = $st->fetchAll();
+      $rows = Signups::teamsForTournament($t['id']);
     ?>
     <?php if (empty($rows)): ?>
       <p><em>No sign-ups yet.</em></p>
