@@ -14,7 +14,10 @@ if ($action === 'create') {
   $partner_ids   = array_map('intval', $_POST['partner_ids'] ?? []);
 
   // Build full member list
-  if ($u['is_admin']) {
+  if ($go_maverick) {
+    // Maverick: creator only, even for admins
+    $member_ids = [$u['id']];
+  } elseif ($u['is_admin']) {
     // Admin may create signups for anyone (1–3 total)
     $member_ids = array_values(array_unique($partner_ids));
   } else {
