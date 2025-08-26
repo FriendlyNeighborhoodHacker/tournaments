@@ -99,9 +99,8 @@ if (!$u['is_admin'] && !$u['is_coach'] && $__new_user_msg !== '') {
       <input type="hidden" name="tournament_id" id="m_tournament_id">
       <label><input type="checkbox" id="m_go_maverick" name="go_maverick" value="1" onchange="toggleMaverick()"> Go Maverick (solo)</label>
       <div id="partnerWrap">
-        <label>Choose partner(s) (1–2 other people)
-          <select id="m_partners" name="partner_ids[]" multiple size="8" required></select>
-        </label>
+        <label>Choose partner(s) (1–2 other people)</label>
+        <div id="m_partners_box" class="partners-box" style="max-height:220px; overflow:auto; border:1px solid #e8e8ef; border-radius:8px; padding:8px;"></div>
         <small class="small" id="partnersHelp">You’ll be included automatically; choose 1–2 partners (2–3 total).</small>
       </div>
       <label>Comment (optional)
