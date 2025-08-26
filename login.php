@@ -5,9 +5,10 @@ require_once __DIR__.'/partials.php';
 if (current_user()) { header('Location: /index.php'); exit; }
 
 $error = null;
+$created = !empty($_GET['created']);
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   require_csrf();
-  $email = trim($_POST['email'] ?? '');
+  $email = strtolower(trim($_POST['email'] ?? ''));
   $pass  = $_POST['password'] ?? '';
   $st = pdo()->prepare("SELECT * FROM users WHERE email=?");
   $st->execute([$email]);
@@ -23,6 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body class="auth">
   <div class="card">
     <h1>Login</h1>
+    <?php if (!empty($created)): ?><p class="flash">Account created. Please sign in.</p><?php endif; ?>
     <?php if($error): ?><p class="error"><?=h($error)?></p><?php endif; ?>
     <form method="post">
       <input type="hidden" name="csrf" value="<?=h(csrf_token())?>">
@@ -30,5 +32,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <label>Password<input type="password" name="password" required></label>
       <button type="submit">Sign in</button>
     </form>
+    <p class="small" style="margin-top:0.75rem;">Don&#39;t have an account? <a href="/register.php">Create one</a></p>
   </div>
 </body></html>
