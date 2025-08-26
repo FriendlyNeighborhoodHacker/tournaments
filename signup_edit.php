@@ -17,6 +17,16 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
   $comment = trim($_POST['comment'] ?? '');
   $member_ids = array_map('intval', $_POST['member_ids'] ?? []);
   $member_ids = array_values(array_unique($member_ids));
+  // Disallow coaches in teams
+  if (empty($err) && !empty($member_ids)) {
+    $in = implode(',', array_fill(0, count($member_ids), '?'));
+    $stc = $pdo->prepare("SELECT first_name,last_name FROM users WHERE is_coach=1 AND id IN ($in)");
+    $stc->execute($member_ids);
+    $coaches = $stc->fetchAll();
+    if ($coaches) {
+      $err = 'Coaches cannot be added to teams: '.implode(', ', array_map(fn($r)=>$r['first_name'].' '.$r['last_name'], $coaches));
+    }
+  }
   // Validation: 1 if maverick else 2–3
   $cnt = count($member_ids);
   if ($go_mav ? $cnt!==1 : ($cnt<2 || $cnt>3)) { $err = 'Invalid team size'; }

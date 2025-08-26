@@ -25,6 +25,18 @@ if ($action === 'create') {
     $member_ids = array_values(array_unique(array_merge([$u['id']], $partner_ids)));
   }
 
+  // Disallow coaches in teams
+  if (!empty($member_ids)) {
+    $in = implode(',', array_fill(0, count($member_ids), '?'));
+    $stc = $pdo->prepare("SELECT first_name,last_name FROM users WHERE is_coach=1 AND id IN ($in)");
+    $stc->execute($member_ids);
+    $coaches = $stc->fetchAll();
+    if ($coaches) {
+      $names = array_map(fn($r)=>$r['first_name'].' '.$r['last_name'], $coaches);
+      http_response_code(400); exit('Coaches cannot be added to teams: '.implode(', ', $names));
+    }
+  }
+
   // Validation
   $count = count($member_ids);
   if ($go_maverick) {

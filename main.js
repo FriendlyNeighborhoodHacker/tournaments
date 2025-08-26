@@ -24,6 +24,7 @@ function populatePartners() {
   const isAdmin = !!window.APP.isAdmin;
   window.APP.roster.forEach(p => {
     if (!isAdmin && p.id === me) return; // members will include me automatically
+    if (p.is_coach) return; // exclude coaches from team options
     const label = document.createElement('label');
     label.style.display = 'flex';
     label.style.alignItems = 'center';
