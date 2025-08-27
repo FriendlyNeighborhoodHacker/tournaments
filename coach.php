@@ -3,15 +3,14 @@ require_once __DIR__.'/partials.php';
 require_once __DIR__.'/settings.php';
 require_once __DIR__.'/lib/Tournaments.php';
 require_once __DIR__.'/lib/Signups.php';
-require_coach_or_admin();
 
 $showAll = !empty($_GET['all']);
 $tournaments = $showAll ? Tournaments::allAsc() : Tournaments::upcoming();
-header_html('Coach View');
+header_html('Upcoming Tournaments');
 $__announcement = Settings::get('announcement', '');
 if ($__announcement !== '') { echo '<h2><strong>Announcement</strong></h2><div class="card" style="background:#fff3cd;border:1px solid #ffeeba;"><p>'.nl2br(h($__announcement)).'</p></div>'; }
 ?>
-<h2>Coach View — <?= $showAll ? 'All tournaments' : 'Upcoming tournaments' ?></h2>
+<h2><?= $showAll ? 'All tournaments' : 'Upcoming tournaments' ?></h2>
 <?php foreach($tournaments as $t): ?>
   <section class="coach-section">
     <h3><?=h($t['name'])?> — <?=h($t['start_date'])?> → <?=h($t['end_date'])?> (<?=h($t['location'])?>)</h3>
