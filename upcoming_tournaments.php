@@ -172,5 +172,19 @@ function closeAdminRidesModal(id) {
     m.setAttribute('aria-hidden','true');
   }
 }
+function openEditJudgesModal(id) {
+  var m = document.getElementById(id);
+  if (m) {
+    m.classList.remove('hidden');
+    m.setAttribute('aria-hidden','false');
+  }
+}
+function closeEditJudgesModal(id) {
+  var m = document.getElementById(id);
+  if (m) {
+    m.classList.add('hidden');
+    m.setAttribute('aria-hidden','true');
+  }
+}
 </script>
 <?php footer_html(); ?>
