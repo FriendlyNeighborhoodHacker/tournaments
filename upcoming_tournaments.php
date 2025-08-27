@@ -57,6 +57,7 @@ if ($__announcement !== '') { echo '<h2><strong>Announcement</strong></h2><div c
         </tbody>
       </table>
     <?php endif; ?>
+    <div class="summary-lines">
     <?php
       $tJudges = Judges::judgesForTournament($t['id']);
       if (!empty($tJudges)) {
@@ -89,6 +90,7 @@ if ($__announcement !== '') { echo '<h2><strong>Announcement</strong></h2><div c
         echo '<p><strong>Unspecified Ride ('.$cntUnspec.'):</strong> '.h(implode(', ', $unspec_names)).'</p>';
       }
     ?>
+    </div>
   </section>
 <?php endforeach; ?>
 <p class="small" style="margin-top: 1rem;">
