@@ -95,11 +95,12 @@ if ($__announcement !== '') { echo '
         ?>
           <button type="button" onclick="openRideModal(<?=h($tournament_id)?>)">Do you have a ride?</button>
         <?php endif; ?>
-        <form class="inline" method="post" action="/signup_actions.php">
+        <form class="inline" method="post" action="/signup_actions.php" onsubmit="return confirm('Un-sign your team from this tournament?')">
           <input type="hidden" name="csrf" value="<?=h(csrf_token())?>">
           <input type="hidden" name="action" value="delete">
           <input type="hidden" name="signup_id" value="<?=h($mine['id'])?>">
-          <button class="danger" onclick="return confirm('Un-sign your team from this tournament?')">Withdraw Team</button>
+          <input type="submit" id="withdrawSubmit_<?=h($mine['id'])?>" hidden>
+          <a href="#" onclick="document.getElementById('withdrawSubmit_<?=h($mine['id'])?>').click(); return false;">Withdraw Team</a>
         </form>
         <?php if ($u['is_admin']): ?>
           <button class="primary" onclick='openSignupModal(<?=json_encode([
