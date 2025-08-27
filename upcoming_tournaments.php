@@ -11,7 +11,7 @@ header_html('Upcoming Tournaments');
 $__announcement = Settings::get('announcement', '');
 if ($__announcement !== '') { 
   echo '
-    <div class="card" style="background:#fff3cd;border:1px solid #ffeeba;">
+    <div class="card" style="background:var(--c-bg);border:1px solid var(--c-accent-3);">
     <h2><strong>Announcement</strong></h2>
     <p>' . nl2br(h($__announcement)) . '</p></div>'; 
 }
