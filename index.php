@@ -199,24 +199,22 @@ if ($__announcement !== '') {
           <input type="submit" id="withdrawSubmit_<?=h($mine['id'])?>" hidden>
           <a href="#" onclick="document.getElementById('withdrawSubmit_<?=h($mine['id'])?>').click(); return false;">Withdraw Team</a>
         </form>
+        <?php
+          $rideState = $my_has_ride[$tournament_id] ?? null;
+          if ($rideState === null) : // IF RIDE NOT SET
+        ?>
+          <button type="button" onclick="openRideModal(<?=h($tournament_id)?>)">Do you have a ride?</button>
+          <?php elseif ($rideState == 0) : // ELSE NEEDS RIDE ?>
+            Ride status: <a href="#" onclick="openRideModal(<?=h($tournament_id)?>); return false;">Needs Ride</a><br>
+          <?php else: // ELSE (HAS RIDE) ?>
+            Ride status: <a href="#" onclick="openRideModal(<?=h($tournament_id)?>); return false;">Has Ride</a><br>
+        <?php endif; // RIDE SET?>
         <?php if ($u['is_admin']): ?>
           <button class="primary" onclick='openSignupModal(<?=json_encode([
             "tournament_id"=>$t["id"],
             "tournament_name"=>$t["name"]
           ])?>)'>Sign up another team</button>
-        <?php endif; ?>
-        <?php
-          $rideState = $my_has_ride[$tournament_id] ?? null;
-          if ($rideState === null) :
-        ?>
-          <button type="button" onclick="openRideModal(<?=h($tournament_id)?>)">Do you have a ride?</button>
-          <?php elseif ($rideState == 0) : ?>
-            <br />You need a ride for this tournament. 
-            <a href="#" onclick="openRideModal(<?=h($tournament_id)?>); return false;">change</a>
-          <?php else: ?>
-            <br />You have a ride for this tournament.
-            <a href="#" onclick="openRideModal(<?=h($tournament_id)?>); return false;">change</a>
-        <?php endif; ?>
+        <?php endif; ?> 
       <?php else: // ELSE MINE ?>
         <button class="primary" onclick='openSignupModal(<?=json_encode([
           "tournament_id"=>$t["id"],
