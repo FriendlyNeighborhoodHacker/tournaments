@@ -56,6 +56,28 @@ CREATE TABLE signup_members (
   UNIQUE KEY uniq_one_per_tournament (tournament_id, user_id)
 ) ENGINE=InnoDB;
 
+-- Judges (people who can judge), sponsored by a user
+CREATE TABLE judges (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  first_name VARCHAR(100) NOT NULL,
+  last_name  VARCHAR(100) NOT NULL,
+  email      VARCHAR(255) DEFAULT NULL,
+  phone      VARCHAR(30)  DEFAULT NULL,
+  sponsor_id INT NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_judges_sponsor FOREIGN KEY (sponsor_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- Judges attached to a team signup
+CREATE TABLE signup_judges (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  signup_id INT NOT NULL,
+  judge_id  INT NOT NULL,
+  CONSTRAINT fk_sj_signup FOREIGN KEY (signup_id) REFERENCES signups(id) ON DELETE CASCADE,
+  CONSTRAINT fk_sj_judge  FOREIGN KEY (judge_id)  REFERENCES judges(id) ON DELETE CASCADE,
+  UNIQUE KEY uniq_signup_judge (signup_id, judge_id)
+) ENGINE=InnoDB;
+
 -- Helpful seed (change email & pass later). Run once, then delete or disable.
 INSERT INTO users (first_name,last_name,email,phone,password_hash,is_coach,is_admin)
 VALUES ('Lilly','Rosenthal','lillyjrosenthal123@gmail.com',NULL, '$2y$10$9xH7Jq4v3o6s9k3y8i4rVOyWb0yBYZ5rW.0f9pZ.gG9K6l7lS6b2S', 1,1);

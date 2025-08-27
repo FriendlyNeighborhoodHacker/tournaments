@@ -10,6 +10,7 @@ require_once __DIR__.'/settings.php';
 require_once __DIR__.'/lib/Tournaments.php';
 require_once __DIR__.'/lib/Users.php';
 require_once __DIR__.'/lib/Signups.php';
+require_once __DIR__.'/lib/Judges.php';
 require_login();
 $u = current_user();
 
@@ -74,6 +75,8 @@ if ($__announcement !== '') { echo '
       <p><strong>Dates:</strong> <?=h($t['start_date'])?> → <?=h($t['end_date'])?></p>
       <?php
         $allTeams = Signups::teamsForTournament($t['id']);
+        $judgesBySignup = Judges::judgesBySignupForTournament($t['id']);
+        $allJudges = $u['is_admin'] ? Judges::listAll() : [];
       ?>
       <?php if (empty($allTeams)): ?>
         <p><em>No sign-ups yet.</em></p>
@@ -81,9 +84,113 @@ if ($__announcement !== '') { echo '
         <p><strong>Teams:</strong></p>
         <ul>
           <?php foreach ($allTeams as $r): ?>
-            <li><?php if ($mine && isset($mine['id']) && $r['id'] == $mine['id']): ?><strong><?=h($r['members'])?></strong><?php else: ?><?=h($r['members'])?><?php endif; ?> (signed-up by <?=h($r['cb_fn'].' '.$r['cb_ln'])?>)</li>
+            <li>
+              <?php if ($mine && isset($mine['id']) && $r['id'] == $mine['id']): ?>
+                <strong><?=h($r['members'])?></strong>
+              <?php else: ?>
+                <?=h($r['members'])?>
+              <?php endif; ?>
+              (signed-up by <?=h($r['cb_fn'].' '.$r['cb_ln'])?>)
+              <?php
+                $isMine = ($mine && isset($mine['id']) && $r['id'] == $mine['id']);
+                $js = $judgesBySignup[$r['id']] ?? [];
+                if (!empty($js)) {
+                  $jn = array_map(function($j){ return $j['first_name'].' '.$j['last_name']; }, $js);
+                  echo ' — bringing '.h(implode(', ', $jn)).' to judge';
+                  if ($u['is_admin']) {
+                    foreach ($js as $j) {
+                      echo ' <form class="inline" method="post" action="/judge_actions.php" onsubmit="return confirm(\'Remove judge?\')">'
+                         . '<input type="hidden" name="csrf" value="'.h(csrf_token()).'">'
+                         . '<input type="hidden" name="action" value="detach_one">'
+                         . '<input type="hidden" name="signup_id" value="'.h($r['id']).'">'
+                         . '<input type="hidden" name="judge_id" value="'.h($j['judge_id']).'">'
+                         . '<button class="button danger" style="padding:2px 6px;font-size:12px;">(X)</button>'
+                         . '</form>';
+                    }
+                    echo ' <a href="#" class="small" onclick="openEditJudgesModal(\'editJudges_'.$r['id'].'\'); return false;">edit judges</a>';
+                  } elseif ($isMine) {
+                    echo ' <a href="#" class="small" onclick="openEditJudgesModal(\'editJudges_'.$r['id'].'\'); return false;">edit judges</a>';
+                  }
+                } else {
+                  echo ' — bringing none to judge';
+                  if ($u['is_admin']) {
+                    echo ' <a href="#" class="small" onclick="openEditJudgesModal(\'editJudges_'.$r['id'].'\'); return false;">edit judges</a>';
+                  } elseif ($isMine) {
+                    echo ' <a href="#" class="small" onclick="openEditJudgesModal(\'editJudges_'.$r['id'].'\'); return false;">edit judges</a>';
+                  }
+                }
+              ?>
+            </li>
           <?php endforeach; ?>
         </ul>
+      <?php endif; ?>
+
+      <?php if ($u['is_admin']): ?>
+        <?php foreach ($allTeams as $rr): 
+          $sid = (int)$rr['id'];
+          $attached = $judgesBySignup[$sid] ?? [];
+          $attachedIds = array_map(function($j){ return (int)$j['judge_id']; }, $attached);
+          $modalId = 'editJudges_'.$sid;
+        ?>
+        <div id="<?=h($modalId)?>" class="modal hidden" aria-hidden="true">
+          <div class="modal-content">
+            <button class="close" onclick="closeEditJudgesModal('<?=h($modalId)?>')">×</button>
+            <h3>Edit judges — <?=h($rr['members'])?></h3>
+            <form method="post" action="/judge_actions.php" class="stack">
+              <input type="hidden" name="csrf" value="<?=h(csrf_token())?>">
+              <input type="hidden" name="action" value="bulk_set">
+              <input type="hidden" name="signup_id" value="<?=h($sid)?>">
+              <input type="hidden" name="ref" value="/index.php">
+              <div style="max-height:260px; overflow:auto; border:1px solid #e8e8ef; border-radius:8px; padding:8px;">
+                <?php foreach ($allJudges as $j): ?>
+                  <?php $checked = in_array((int)$j['id'], $attachedIds, true) ? 'checked' : ''; ?>
+                  <label style="display:block;">
+                    <input type="checkbox" name="judge_ids[]" value="<?=$j['id']?>" <?=$checked?>> <?=h($j['last_name'].', '.$j['first_name'])?>
+                  </label>
+                <?php endforeach; ?>
+              </div>
+              <div class="actions">
+                <button class="primary">Save</button>
+                <button type="button" onclick="closeEditJudgesModal('<?=h($modalId)?>')">Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <?php endforeach; ?>
+      <?php endif; ?>
+
+      <?php if (!$u['is_admin'] && $mine): 
+        $sid = (int)$mine['id'];
+        $attached = $judgesBySignup[$sid] ?? [];
+        $attachedIds = array_map(function($j){ return (int)$j['judge_id']; }, $attached);
+        $modalId = 'editJudges_'.$sid;
+        $memberIds = Signups::membersForSignup($sid);
+        $teamJudges = Judges::listBySponsors($memberIds);
+      ?>
+      <div id="<?=h($modalId)?>" class="modal hidden" aria-hidden="true">
+        <div class="modal-content">
+          <button class="close" onclick="closeEditJudgesModal('<?=h($modalId)?>')">×</button>
+          <h3>Edit judges — <?=h($my_by_t[$tournament_id]['members'] ?? 'Your team')?></h3>
+          <form method="post" action="/judge_actions.php" class="stack">
+            <input type="hidden" name="csrf" value="<?=h(csrf_token())?>">
+            <input type="hidden" name="action" value="bulk_set">
+            <input type="hidden" name="signup_id" value="<?=h($sid)?>">
+            <input type="hidden" name="ref" value="/index.php">
+            <div style="max-height:260px; overflow:auto; border:1px solid #e8e8ef; border-radius:8px; padding:8px;">
+              <?php foreach ($teamJudges as $j): ?>
+                <?php $checked = in_array((int)$j['id'], $attachedIds, true) ? 'checked' : ''; ?>
+                <label style="display:block;">
+                  <input type="checkbox" name="judge_ids[]" value="<?=$j['id']?>" <?=$checked?>> <?=h($j['last_name'].', '.$j['first_name'])?>
+                </label>
+              <?php endforeach; ?>
+            </div>
+            <div class="actions">
+              <button class="primary">Save</button>
+              <button type="button" onclick="closeEditJudgesModal('<?=h($modalId)?>')">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
       <?php endif; ?>
 
       <?php if ($mine): ?>
@@ -217,6 +324,19 @@ function closeAdminRidesModal(id) {
     m.setAttribute('aria-hidden','true');
   }
 }
+function openEditJudgesModal(id) {
+  var m = document.getElementById(id);
+  if (m) {
+    m.classList.remove('hidden');
+    m.setAttribute('aria-hidden','false');
+  }
+}
+function closeEditJudgesModal(id) {
+  var m = document.getElementById(id);
+  if (m) {
+    m.classList.add('hidden');
+    m.setAttribute('aria-hidden','true');
+  }
+}
 </script>
-<?php endif; ?>
 <?php footer_html(); ?>

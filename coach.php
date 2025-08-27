@@ -3,6 +3,7 @@ require_once __DIR__.'/partials.php';
 require_once __DIR__.'/settings.php';
 require_once __DIR__.'/lib/Tournaments.php';
 require_once __DIR__.'/lib/Signups.php';
+require_once __DIR__.'/lib/Judges.php';
 
 $showAll = !empty($_GET['all']);
 $tournaments = $showAll ? Tournaments::allAsc() : Tournaments::upcoming();
@@ -57,6 +58,15 @@ if ($__announcement !== '') { echo '<h2><strong>Announcement</strong></h2><div c
         </tbody>
       </table>
     <?php endif; ?>
+    <?php
+      $tJudges = Judges::judgesForTournament($t['id']);
+      if (!empty($tJudges)) {
+        $names = array_map(function($j){ return $j['first_name'].' '.$j['last_name']; }, $tJudges);
+        echo '<p><strong>Judges ('.count($tJudges).'):</strong> '.h(implode(', ', $names)).'</p>';
+      } else {
+        echo '<p><strong>Judges (0):</strong> none</p>';
+      }
+    ?>
   </section>
 <?php endforeach; ?>
 <p class="small" style="margin-top: 1rem;">
