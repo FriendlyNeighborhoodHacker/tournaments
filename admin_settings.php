@@ -15,8 +15,13 @@ $SETTINGS_DEF = [
   ],
   'announcement' => [
     'label' => 'Announcement',
-    'hint'  => 'Shown on the Home and Coach pages when non-empty.',
+    'hint'  => 'Shown on the Home and Upcoming pages when non-empty.',
     'type'  => 'textarea',
+  ],
+  'timezone' => [
+    'label' => 'Time zone',
+    'hint'  => 'Times are displayed in this time zone (format: YYYY-MM-DD HH:MM, 24-hour).',
+    'type'  => 'timezone',
   ],
 ];
 
@@ -38,7 +43,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $current = [];
 foreach ($SETTINGS_DEF as $key => $_meta) {
   // Provide sensible defaults
-  $default = ($key === 'email pattern') ? 'hackleyschool.org' : '';
+  if ($key === 'email pattern') {
+    $default = 'hackleyschool.org';
+  } elseif ($key === 'timezone') {
+    $default = date_default_timezone_get();
+  } else {
+    $default = '';
+  }
   $val = Settings::get($key, $default);
   $current[$key] = $val;
 }
@@ -55,8 +66,16 @@ header_html('Manage Settings');
     <?php foreach($SETTINGS_DEF as $key => $meta): ?>
       <label>
         <?=h($meta['label'])?>
-        <?php if (($meta['type'] ?? 'text') === 'textarea'): ?>
+        <?php $typ = $meta['type'] ?? 'text'; ?>
+        <?php if ($typ === 'textarea'): ?>
           <textarea name="s[<?=h($key)?>]" rows="4"><?=h($current[$key])?></textarea>
+        <?php elseif ($typ === 'timezone'): ?>
+          <?php $zones = DateTimeZone::listIdentifiers(); ?>
+          <select name="s[<?=h($key)?>]">
+            <?php foreach ($zones as $z): ?>
+              <option value="<?=h($z)?>" <?= $current[$key] === $z ? 'selected' : '' ?>><?=h($z)?></option>
+            <?php endforeach; ?>
+          </select>
         <?php else: ?>
           <input type="text" name="s[<?=h($key)?>]" value="<?=h($current[$key])?>">
         <?php endif; ?>

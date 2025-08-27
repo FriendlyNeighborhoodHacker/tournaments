@@ -30,4 +30,23 @@ class Settings {
       self::$cache[$key] = $value;
     }
   }
+
+  // Returns the selected timezone ID (IANA), defaulting to PHP's default if not set
+  public static function timezoneId(): string {
+    $tz = self::get('timezone', date_default_timezone_get());
+    return $tz ?: 'UTC';
+  }
+
+  // Formats a SQL DATETIME string into YYYY-MM-DD HH:MM in the configured timezone
+  public static function formatDateTime(?string $sqlDateTime): string {
+    if (!$sqlDateTime) return '';
+    try {
+      $dt = new DateTime($sqlDateTime); // treat as server default tz
+      $tz = new DateTimeZone(self::timezoneId());
+      $dt->setTimezone($tz);
+      return $dt->format('Y-m-d H:i');
+    } catch (Throwable $e) {
+      return $sqlDateTime;
+    }
+  }
 }
