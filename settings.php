@@ -44,7 +44,7 @@ class Settings {
       $dt = new DateTime($sqlDateTime); // treat as server default tz
       $tz = new DateTimeZone(self::timezoneId());
       $dt->setTimezone($tz);
-      return $dt->format('Y-m-d H:i');
+      return $dt->format('Y-m-d H:i T');
     } catch (Throwable $e) {
       return $sqlDateTime;
     }

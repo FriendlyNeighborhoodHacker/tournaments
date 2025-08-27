@@ -24,7 +24,7 @@ if ($__announcement !== '') { echo '<h2><strong>Announcement</strong></h2><div c
       <p><em>No sign-ups yet.</em></p>
     <?php else: ?>
       <table class="list">
-        <thead><tr><th>Team</th><th>Comment</th><th>Created by</th><th>Created</th><th>Updated</th><?php if(current_user()['is_admin']):?><th>Admin</th><?php endif; ?></tr></thead>
+        <thead><tr><th>Team</th><th>Comment</th><th>Created by</th><th>Created</th><?php if(current_user()['is_admin']):?><th>Admin</th><?php endif; ?></tr></thead>
         <tbody>
         <?php foreach($rows as $r): ?>
           <tr>
@@ -32,7 +32,6 @@ if ($__announcement !== '') { echo '<h2><strong>Announcement</strong></h2><div c
             <td><?=nl2br(h($r['comment']))?></td>
             <td><?=h($r['cb_fn'].' '.$r['cb_ln'])?></td>
             <td><?=h(Settings::formatDateTime($r['created_at']))?></td>
-            <td><?=h(Settings::formatDateTime($r['updated_at'] ?? null))?></td>
             <?php if(current_user()['is_admin']):?>
               <td>
                 <form class="inline" method="post" action="/signup_actions.php" onsubmit="return confirm('Delete this team signup?')">
