@@ -43,7 +43,10 @@ header_html('Manage Users');
 <?php if($err):?><p class="error"><?=$err?></p><?php endif; ?>
   <div class="card">
     <h3>Create</h3>
-    <form method="post" class="stack">
+    <div style="text-align:center;margin-bottom:8px;">
+      <button type="button" class="button primary" onclick="toggleCreateUser()">Create New User</button>
+    </div>
+    <form id="createUserForm" method="post" class="stack" style="display:none">
       <input type="hidden" name="csrf" value="<?=h(csrf_token())?>">
       <label>First name<input name="first_name" required></label>
       <label>Last name<input name="last_name" required></label>
@@ -90,4 +93,11 @@ header_html('Manage Users');
       </tbody>
     </table>
   </div>
+<script>
+function toggleCreateUser() {
+  const f = document.getElementById('createUserForm');
+  if (!f) return;
+  f.style.display = (f.style.display === 'none' || !f.style.display) ? 'block' : 'none';
+}
+</script>
 <?php footer_html(); ?>
