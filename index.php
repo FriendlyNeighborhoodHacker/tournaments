@@ -235,7 +235,7 @@ if ($__announcement !== '') {
             Sign up another team
           <?php else: ?>
             Sign up a team
-          <?php endif;
+          <?php endif; ?>
           </a></li>
         </ul>
       <?php endif; ?>
