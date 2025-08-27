@@ -6,6 +6,9 @@ if (current_user()) { header('Location: /index.php'); exit; }
 
 $error = null;
 $created = !empty($_GET['created']);
+$verifyNotice = !empty($_GET['verify']);
+$verified = !empty($_GET['verified']);
+$verifyError = !empty($_GET['verify_error']);
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   require_csrf();
   $email = strtolower(trim($_POST['email'] ?? ''));
@@ -14,8 +17,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $st->execute([$email]);
   $u = $st->fetch();
   if ($u && password_verify($pass, $u['password_hash'])) {
-    $_SESSION['uid'] = $u['id'];
-    header('Location: /index.php'); exit;
+    if (empty($u['email_verified_at'])) {
+      $error = 'Please verify your email before signing in. Check your inbox for the confirmation link.';
+    } else {
+      $_SESSION['uid'] = $u['id'];
+      header('Location: /index.php'); exit;
+    }
   } else $error = 'Invalid email or password.';
 }
 ?>
@@ -24,7 +31,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body class="auth">
   <div class="card">
     <h1>Login</h1>
-    <?php if (!empty($created)): ?><p class="flash">Account created. Please sign in.</p><?php endif; ?>
+    <?php if (!empty($created) && !empty($verifyNotice)): ?><p class="flash">Account created. Check your email to verify your account before signing in.</p><?php elseif (!empty($created)): ?><p class="flash">Account created.</p><?php endif; ?>
+    <?php if (!empty($verified)): ?><p class="flash">Email verified. You can now sign in.</p><?php endif; ?>
+    <?php if (!empty($verifyError)): ?><p class="error">Invalid or expired verification link.</p><?php endif; ?>
     <?php if($error): ?><p class="error"><?=h($error)?></p><?php endif; ?>
     <form method="post">
       <input type="hidden" name="csrf" value="<?=h(csrf_token())?>">

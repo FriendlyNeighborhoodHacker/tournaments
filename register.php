@@ -1,6 +1,7 @@
 <?php // register.php
 require_once __DIR__.'/partials.php';
 require_once __DIR__.'/settings.php';
+require_once __DIR__.'/mailer.php';
 
 // If already logged in, go home
 if (current_user()) { header('Location: /index.php'); exit; }
@@ -33,9 +34,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   if (!$errors) {
     try {
       $hash = password_hash($pass, PASSWORD_DEFAULT);
-      $st = pdo()->prepare('INSERT INTO users (first_name,last_name,email,phone,password_hash,is_coach,is_admin) VALUES (?,?,?,?,?,?,?)');
-      $st->execute([$first, $last, $email, $phone !== '' ? $phone : null, $hash, 0, 0]);
-      header('Location: /login.php?created=1'); exit;
+      $token = bin2hex(random_bytes(32));
+      $st = pdo()->prepare('INSERT INTO users (first_name,last_name,email,phone,password_hash,is_coach,is_admin,email_verify_token,email_verified_at) VALUES (?,?,?,?,?,?,?,?,?)');
+      $st->execute([$first, $last, $email, $phone !== '' ? $phone : null, $hash, 0, 0, $token, null]);
+
+      // Send verification email
+      $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+      $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+      $verifyUrl = $scheme.'://'.$host.'/verify_email.php?token='.urlencode($token);
+      $html = '<p>Hello '.htmlspecialchars($first.' '.$last, ENT_QUOTES, 'UTF-8').',</p>'
+            . '<p>Please confirm your email to activate your account:</p>'
+            . '<p><a href="'.htmlspecialchars($verifyUrl, ENT_QUOTES, 'UTF-8').'">'.htmlspecialchars($verifyUrl, ENT_QUOTES, 'UTF-8').'</a></p>'
+            . '<p>If you did not request this, you can ignore this email.</p>';
+
+      // Best-effort email; even if it fails, instruct user to contact a coach
+      @send_email($email, 'Confirm your Debate Team account', $html, $first.' '.$last);
+
+      header('Location: /login.php?created=1&verify=1'); exit;
     } catch (PDOException $e) {
       // Likely duplicate email (unique constraint)
       $errors[] = 'An account with that email already exists.';

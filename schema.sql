@@ -14,6 +14,8 @@ CREATE TABLE users (
   password_hash VARCHAR(255) NOT NULL,
   is_coach   TINYINT(1) NOT NULL DEFAULT 0,
   is_admin   TINYINT(1) NOT NULL DEFAULT 0,
+  email_verify_token VARCHAR(64) DEFAULT NULL,
+  email_verified_at DATETIME DEFAULT NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
