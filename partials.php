@@ -7,12 +7,18 @@ function header_html($title) {
   $u = current_user();
   $nav = '';
   if ($u) {
-    $nav .= '<a href="/index.php">Home</a> | ';
-    $nav .= '<a href="/upcoming_tournaments.php">Upcoming Tournaments</a> | ';
-    if ($u['is_admin']) { $nav .= '<a href="/admin_tournaments.php">Manage Tournaments</a> | '; }
-    $nav .= '<a href="/judges.php">Judges</a> | ';
-    if ($u['is_admin']) $nav .= '<a href="/admin_users.php">Users</a> | <a href="/admin_settings.php">Settings</a> | ';
-    $nav .= '<a href="/change_password.php">Change Password</a> | <a href="/logout.php">Log out</a>';
+    $cur = basename($_SERVER['SCRIPT_NAME'] ?? '');
+    $L = function(string $path, string $label) use ($cur) {
+      $active = ($cur === basename($path));
+      $a = '<a href="'.h($path).'">'.h($label).'</a>';
+      return $active ? '<strong>'.$a.'</strong>' : $a;
+    };
+    $nav .= $L('/index.php','Home').' | ';
+    $nav .= $L('/upcoming_tournaments.php','Upcoming Tournaments').' | ';
+    if ($u['is_admin']) { $nav .= $L('/admin_tournaments.php','Tournaments').' | '; }
+    $nav .= $L('/judges.php','Judges').' | ';
+    if ($u['is_admin']) $nav .= $L('/admin_users.php','Users').' | '.$L('/admin_settings.php','Settings').' | ';
+    $nav .= $L('/change_password.php','Change Password').' | '.$L('/logout.php','Log out');
   }
   echo '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">';
   echo '<title>'.h($title).' - '.h(APP_NAME).'</title>';
