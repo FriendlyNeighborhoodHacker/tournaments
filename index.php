@@ -190,24 +190,38 @@ if ($__announcement !== '') {
       <?php endif; ?>
 
       <?php if ($mine): // IF MINE?>
-        <div class="badge success">You’re signed up</div> Manage:
-        <?php if (!empty($mine['comment'])): ?><p><strong>Comment:</strong> <?=nl2br(h($mine['comment']))?></p><?php endif; ?>
+          <p><strong><div class="badge success">You’re signed up</div>Manage:</strong></p>
+        <ul>
+        <?php if (!empty($mine['comment'])): ?><li><strong>Comment:</strong> <?=nl2br(h($mine['comment']))?></li><?php endif; ?>
+          <li>Ride status:
         <?php
           $rideState = $my_has_ride[$tournament_id] ?? null;
           if ($rideState === null) : // IF RIDE NOT SET
         ?>
-          <button type="button" onclick="openRideModal(<?=h($tournament_id)?>)">Do you have a ride?</button>
+          <a href="#" onclick="openRideModal(<?=h($tournament_id)?>); return false;">Not set</a>
           <?php elseif ($rideState == 0) : // ELSE NEEDS RIDE ?>
-            Ride status: <a href="#" onclick="openRideModal(<?=h($tournament_id)?>); return false;">Needs Ride</a><br>
+            Ride status: <a href="#" onclick="openRideModal(<?=h($tournament_id)?>); return false;">Needs Ride</a><
           <?php else: // ELSE (HAS RIDE) ?>
-            Ride status: <a href="#" onclick="openRideModal(<?=h($tournament_id)?>); return false;">Has Ride</a><br>
+            Ride status: <a href="#" onclick="openRideModal(<?=h($tournament_id)?>); return false;">Has Ride</a>
         <?php endif; // RIDE SET?>
+          </li>
+      <?php if ($mine): // IF MINE?>
+        <form class="inline" method="post" action="/signup_actions.php" onsubmit="return confirm('Un-sign your team from this tournament?')">
+          <input type="hidden" name="csrf" value="<?=h(csrf_token())?>">
+          <input type="hidden" name="action" value="delete">
+          <input type="hidden" name="signup_id" value="<?=h($mine['id'])?>">
+          <input type="submit" id="withdrawSubmit_<?=h($mine['id'])?>" hidden>
+          <li><a href="#" onclick="document.getElementById('withdrawSubmit_<?=h($mine['id'])?>').click(); return false;"><br>withdraw your team</a></li>
+        </form>
+      <?php endif; ?>
+
         <?php if ($u['is_admin']): ?>
-          <button class="primary" onclick='openSignupModal(<?=json_encode([
+          <li><a href="#" onclick='openSignupModal(<?=json_encode([
             "tournament_id"=>$t["id"],
             "tournament_name"=>$t["name"]
-          ])?>)'>Sign up another team</button>
+          ])?>); return false;'>Sign up another team</a></li>
         <?php endif; ?> 
+        </ul>
       <?php else: // ELSE MINE ?>
         <button class="primary" onclick='openSignupModal(<?=json_encode([
           "tournament_id"=>$t["id"],
@@ -216,16 +230,10 @@ if ($__announcement !== '') {
       <?php endif; // ENDIF MINE ?>
 
       <?php if ($u['is_admin']): ?>
-        <button type="button" onclick="openAdminRidesModal('ridesModal_<?=h($t['id'])?>')">See rides</button>
-      <?php endif; ?>
-      <?php if ($mine): // IF MINE?>
-        <form class="inline" method="post" action="/signup_actions.php" onsubmit="return confirm('Un-sign your team from this tournament?')">
-          <input type="hidden" name="csrf" value="<?=h(csrf_token())?>">
-          <input type="hidden" name="action" value="delete">
-          <input type="hidden" name="signup_id" value="<?=h($mine['id'])?>">
-          <input type="submit" id="withdrawSubmit_<?=h($mine['id'])?>" hidden>
-          <a href="#" onclick="document.getElementById('withdrawSubmit_<?=h($mine['id'])?>').click(); return false;"><br>withdraw your team</a><br>
-        </form>
+          <p><strong>Admin Actions:</strong></p>
+          <ul>
+            <li><a href="#" onclick="openAdminRidesModal('ridesModal_<?=h($t['id'])?>'); return false;">See rides</a></li>
+      </ul>
       <?php endif; ?>
 
 
