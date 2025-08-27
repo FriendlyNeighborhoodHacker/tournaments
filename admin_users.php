@@ -44,7 +44,7 @@ header_html('Manage Users');
   <div class="card">
     <h3>Create</h3>
     <div style="text-align:center;margin-bottom:8px;">
-      <button type="button" class="button primary" onclick="toggleCreateUser()">Create New User</button>
+      <button id="toggleCreateBtn" type="button" class="button primary" onclick="toggleCreateUser()">Create New User</button>
     </div>
     <form id="createUserForm" method="post" class="stack" style="display:none">
       <input type="hidden" name="csrf" value="<?=h(csrf_token())?>">
@@ -96,8 +96,11 @@ header_html('Manage Users');
 <script>
 function toggleCreateUser() {
   const f = document.getElementById('createUserForm');
+  const btn = document.getElementById('toggleCreateBtn');
   if (!f) return;
-  f.style.display = (f.style.display === 'none' || !f.style.display) ? 'block' : 'none';
+  const opening = (f.style.display === 'none' || !f.style.display);
+  f.style.display = opening ? 'block' : 'none';
+  if (btn) btn.textContent = opening ? 'Hide Create User Form' : 'Create New User';
 }
 </script>
 <?php footer_html(); ?>
