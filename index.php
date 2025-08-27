@@ -223,12 +223,31 @@ if ($__announcement !== '') {
         ])?>)'>Sign up</button>
       <?php endif; // ENDIF MINE ?>
 
+      <?php if (!empty($allTeams)): // Rides section ?>
+        <?php
+          $members = Signups::membersWithRideForTournament($t['id']);
+          $has_names = []; $needs_names = []; $unspec_names = [];
+          foreach ($members as $mm) {
+            $nm = h($mm['first_name'].' '.$mm['last_name']);
+            if ($mm['has_ride'] === null) { $unspec_names[] = $nm; }
+            elseif ((int)$mm['has_ride'] === 1) { $has_names[] = $nm; }
+            else { $needs_names[] = $nm; }
+          }
+        ?>
+        <p><strong>Rides:</strong></p>
+        <ul>
+          <li>Has ride: <?= empty($has_names) ? '<em>none</em>' : implode(', ', $has_names) ?></li>
+          <li>Needs ride: <?= empty($needs_names) ? '<em>none</em>' : implode(', ', $needs_names) ?></li>
+          <li>Unspecified ride: <?= empty($unspec_names) ? '<em>none</em>' : implode(', ', $unspec_names) ?></li>
+        </ul>
+      <?php endif; ?>
+
       <?php if ($u['is_admin']): ?>
           <p><strong>Admin Actions:</strong></p>
           <ul>
-            <? if (!empty($allTeams)): ?>
+            <?php if (!empty($allTeams)): ?>
             <li><a href="#" onclick="openAdminRidesModal('ridesModal_<?=h($t['id'])?>'); return false;">Ride statuses: edit</a></li>
-            <? endif; ?>
+            <?php endif; ?>
           <li><a href="#" onclick='openSignupModal(<?=json_encode([
             "tournament_id"=>$t["id"],
             "tournament_name"=>$t["name"]
