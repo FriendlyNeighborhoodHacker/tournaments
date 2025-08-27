@@ -10,7 +10,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   require_csrf();
   if (isset($_POST['create'])) {
     $hash = password_hash($_POST['password'], PASSWORD_DEFAULT);
-    $st = $pdo->prepare("INSERT INTO users (first_name,last_name,email,phone,password_hash,is_coach,is_admin) VALUES (?,?,?,?,?,?,?)");
+    // Admin-created users are auto-verified (no email token required)
+    $st = $pdo->prepare("INSERT INTO users (first_name,last_name,email,phone,password_hash,is_coach,is_admin,email_verify_token,email_verified_at) VALUES (?,?,?,?,?,?,?,NULL,NOW())");
     $st->execute([trim($_POST['first_name']), trim($_POST['last_name']), trim($_POST['email']), trim($_POST['phone']), $hash, (int)!empty($_POST['is_coach']), (int)!empty($_POST['is_admin'])]);
     $msg = 'User created.';
   } elseif (isset($_POST['update'])) {

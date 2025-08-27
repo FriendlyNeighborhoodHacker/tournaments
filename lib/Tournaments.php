@@ -3,7 +3,7 @@ require_once __DIR__ . '/../config.php';
 
 class Tournaments {
   public static function upcoming(): array {
-    $sql = "SELECT * FROM tournaments WHERE start_date >= CURDATE() ORDER BY start_date ASC";
+    $sql = "SELECT * FROM tournaments WHERE start_date >= (CURDATE() - INTERVAL 1 DAY) ORDER BY start_date ASC";
     return pdo()->query($sql)->fetchAll();
   }
 
