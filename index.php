@@ -331,6 +331,7 @@ if ($__announcement !== '') {
     $previous = Tournaments::previousRecent(3);
     if (!empty($previous)):
   ?>
+  <br>
   <h2>Previous Tournaments</h2>
   <div class="grid">
     <?php foreach ($previous as $pt): ?>
