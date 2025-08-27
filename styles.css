@@ -32,3 +32,5 @@ input,select,textarea{width:100%;padding:8px;border:1px solid #d9d9e3;border-rad
 .welcome-banner{font-size:48px;font-weight:700;text-align:center;margin:12px 0 16px}
 input[type=checkbox],input[type=radio]{width:auto;height:auto;padding:0;border:0;vertical-align:middle}
 .summary-lines p{margin:2px 0}
+header h1 a{color:#fff;text-decoration:none}
+header h1 a:hover,header h1 a:focus,header h1 a:active,header h1 a:visited{color:#fff;text-decoration:none}
