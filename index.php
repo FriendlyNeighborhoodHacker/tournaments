@@ -226,7 +226,9 @@ if ($__announcement !== '') {
       <?php if ($u['is_admin']): ?>
           <p><strong>Admin Actions:</strong></p>
           <ul>
-            <li><a href="#" onclick="openAdminRidesModal('ridesModal_<?=h($t['id'])?>'); return false;">See rides</a></li>
+            <? if (!empty($allTeams)): ?>
+            <li><a href="#" onclick="openAdminRidesModal('ridesModal_<?=h($t['id'])?>'); return false;">Ride statuses: edit</a></li>
+            <? endif; ?>
           <li><a href="#" onclick='openSignupModal(<?=json_encode([
             "tournament_id"=>$t["id"],
             "tournament_name"=>$t["name"]
