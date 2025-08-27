@@ -49,6 +49,7 @@ CREATE TABLE signup_members (
   signup_id INT NOT NULL,
   tournament_id INT NOT NULL,
   user_id INT NOT NULL,
+  has_ride TINYINT(1) NULL DEFAULT NULL,
   CONSTRAINT fk_sm_signup     FOREIGN KEY (signup_id)     REFERENCES signups(id)     ON DELETE CASCADE,
   CONSTRAINT fk_sm_tournament FOREIGN KEY (tournament_id) REFERENCES tournaments(id) ON DELETE CASCADE,
   CONSTRAINT fk_sm_user       FOREIGN KEY (user_id)       REFERENCES users(id)       ON DELETE RESTRICT,

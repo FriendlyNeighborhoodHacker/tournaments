@@ -19,6 +19,16 @@ $tournaments_by_id = array();
 foreach ($tournaments as $t) {
 	$tournaments_by_id[$t['id']] = $t;
 }
+$tournament_ids = array_keys($tournaments_by_id);
+$my_has_ride = [];
+if (!empty($tournament_ids)) {
+  // Map of tournament_id => has_ride (NULL/0/1) for current user
+  if (method_exists('Signups', 'hasRideByTournamentForUser')) {
+    $my_has_ride = Signups::hasRideByTournamentForUser($tournament_ids, $u['id']);
+  } else {
+    $my_has_ride = [];
+  }
+}
 
 $signups = Signups::myUpcomingSignups($u['id']);
 $signup_ids = array();
@@ -76,9 +86,19 @@ if ($__announcement !== '') { echo '
         </ul>
       <?php endif; ?>
 
+      <?php if ($u['is_admin']): ?>
+        <button type="button" onclick="openAdminRidesModal('ridesModal_<?=h($t['id'])?>')">See rides</button>
+      <?php endif; ?>
+
       <?php if ($mine): ?>
         <div class="badge success">You’re signed up</div>
         <?php if (!empty($mine['comment'])): ?><p><strong>Comment:</strong> <?=nl2br(h($mine['comment']))?></p><?php endif; ?>
+        <?php
+          $rideState = $my_has_ride[$tournament_id] ?? null;
+          if ($rideState === null):
+        ?>
+          <button type="button" onclick="openRideModal(<?=h($tournament_id)?>)">Do you have a ride?</button>
+        <?php endif; ?>
         <form class="inline" method="post" action="/signup_actions.php">
           <input type="hidden" name="csrf" value="<?=h(csrf_token())?>">
           <input type="hidden" name="action" value="delete">
@@ -100,6 +120,41 @@ if ($__announcement !== '') { echo '
     </div>
   <?php endforeach; ?>
   </div>
+  <?php if ($u['is_admin']): ?>
+  <?php foreach($tournaments_by_id as $tournament_id => $t): 
+    $members = Signups::membersWithRideForTournament($t['id']); ?>
+  <div id="ridesModal_<?=h($t['id'])?>" class="modal hidden" aria-hidden="true">
+    <div class="modal-content">
+      <button class="close" onclick="closeAdminRidesModal('ridesModal_<?=h($t['id'])?>')">×</button>
+      <h3>Rides — <?=h($t['name'])?></h3>
+      <form method="post" action="/ride_actions.php" class="stack">
+        <input type="hidden" name="csrf" value="<?=h(csrf_token())?>">
+        <input type="hidden" name="action" value="admin_bulk_set">
+        <input type="hidden" name="tournament_id" value="<?=h($t['id'])?>">
+        <input type="hidden" name="ref" value="/index.php">
+        <table class="list">
+          <thead><tr><th>Name</th><th>Ride</th></tr></thead>
+          <tbody>
+          <?php foreach($members as $m): ?>
+            <tr>
+              <td><?=h($m['last_name'].', '.$m['first_name'])?></td>
+              <td>
+                <label class="inline"><input type="radio" name="ride[<?=$m['user_id']?>]" value="1" <?= ($m['has_ride']==='1'||$m['has_ride']===1)?'checked':'' ?>> Yes</label>
+                <label class="inline"><input type="radio" name="ride[<?=$m['user_id']?>]" value="0" <?= ($m['has_ride']==='0'||$m['has_ride']===0)?'checked':'' ?>> No</label>
+                <label class="inline"><input type="radio" name="ride[<?=$m['user_id']?>]" value="" <?= ($m['has_ride']===null)?'checked':'' ?>> Unspecified</label>
+              </td>
+            </tr>
+          <?php endforeach; ?>
+          </tbody>
+        </table>
+        <div class="actions">
+          <button class="primary">Save</button>
+          <button type="button" onclick="closeAdminRidesModal('ridesModal_<?=h($t['id'])?>')">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <?php endforeach; endif; ?>
 <?php endif; ?>
 
 <!-- Signup Modal -->
@@ -128,11 +183,61 @@ if ($__announcement !== '') { echo '
   </div>
 </div>
 
+<!-- Ride Self Modal -->
+<div id="rideModal" class="modal hidden" aria-hidden="true">
+  <div class="modal-content">
+    <button class="close" onclick="closeRideModal()">×</button>
+    <h3>Do you have a ride?</h3>
+    <form method="post" action="/ride_actions.php" class="stack">
+      <input type="hidden" name="csrf" value="<?=h(csrf_token())?>">
+      <input type="hidden" name="action" value="self_set">
+      <input type="hidden" name="tournament_id" id="ride_tournament_id">
+      <label class="inline"><input type="radio" name="has_ride" value="1"> Yes</label>
+      <label class="inline"><input type="radio" name="has_ride" value="0"> No</label>
+      <div class="actions">
+        <button class="primary">Save</button>
+        <button type="button" onclick="closeRideModal()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <script>
 window.APP = {
   currentUserId: <?=json_encode($u['id'])?>,
   isAdmin: <?=json_encode((bool)$u['is_admin'])?>,
   roster: <?=json_encode($roster)?>
 };
+
+function openRideModal(tournamentId) {
+  var m = document.getElementById('rideModal');
+  var hid = document.getElementById('ride_tournament_id');
+  if (hid) hid.value = tournamentId;
+  if (m) {
+    m.classList.remove('hidden');
+    m.setAttribute('aria-hidden','false');
+  }
+}
+function closeRideModal() {
+  var m = document.getElementById('rideModal');
+  if (m) {
+    m.classList.add('hidden');
+    m.setAttribute('aria-hidden','true');
+  }
+}
+function openAdminRidesModal(id) {
+  var m = document.getElementById(id);
+  if (m) {
+    m.classList.remove('hidden');
+    m.setAttribute('aria-hidden','false');
+  }
+}
+function closeAdminRidesModal(id) {
+  var m = document.getElementById(id);
+  if (m) {
+    m.classList.add('hidden');
+    m.setAttribute('aria-hidden','true');
+  }
+}
 </script>
 <?php footer_html(); ?>

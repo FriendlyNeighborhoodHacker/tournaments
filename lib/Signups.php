@@ -54,6 +54,22 @@ ORDER BY s.created_at ASC
     return $st->fetchAll();
   }
 
+  // List all members attending a tournament with their ride status (NULL/0/1)
+  public static function membersWithRideForTournament(int $tournamentId): array {
+    $sql = "
+      SELECT u.id AS user_id,
+             u.first_name, u.last_name,
+             sm.has_ride
+      FROM signup_members sm
+      JOIN users u ON u.id = sm.user_id
+      WHERE sm.tournament_id = ?
+      ORDER BY u.last_name, u.first_name
+    ";
+    $st = pdo()->prepare($sql);
+    $st->execute([$tournamentId]);
+    return $st->fetchAll();
+  }
+
   public static function userHasAny(int $userId): bool {
     $st = pdo()->prepare("SELECT 1 FROM signup_members WHERE user_id=? LIMIT 1");
     $st->execute([$userId]);
@@ -64,6 +80,22 @@ ORDER BY s.created_at ASC
     $st = pdo()->prepare("SELECT user_id FROM signup_members WHERE signup_id=?");
     $st->execute([$signupId]);
     return array_column($st->fetchAll(), 'user_id');
+  }
+
+  // Map tournament_id => has_ride (NULL/0/1) for a given user across multiple tournaments
+  public static function hasRideByTournamentForUser(array $tournamentIds, int $userId): array {
+    if (empty($tournamentIds)) return [];
+    $placeholders = implode(',', array_fill(0, count($tournamentIds), '?'));
+    $params = $tournamentIds;
+    $params[] = $userId;
+    $sql = "SELECT tournament_id, has_ride FROM signup_members WHERE tournament_id IN ($placeholders) AND user_id = ?";
+    $st = pdo()->prepare($sql);
+    $st->execute($params);
+    $out = [];
+    foreach ($st->fetchAll() as $row) {
+      $out[(int)$row['tournament_id']] = $row['has_ride'];
+    }
+    return $out;
   }
 
   // Write operations (business logic)
