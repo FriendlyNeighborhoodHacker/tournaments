@@ -17,8 +17,8 @@ CREATE TABLE IF NOT EXISTS judges (
 ) ENGINE=InnoDB;
 
 -- Helpful indexes (optional)
-CREATE INDEX IF NOT EXISTS idx_judges_sponsor_id ON judges(sponsor_id);
-CREATE INDEX IF NOT EXISTS idx_judges_name ON judges(last_name, first_name);
+CREATE INDEX idx_judges_sponsor_id ON judges(sponsor_id);
+CREATE INDEX idx_judges_name ON judges(last_name, first_name);
 
 -- 2) Judges attached to a team signup
 -- ON DELETE CASCADE on judge_id and signup_id keeps associations clean when

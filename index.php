@@ -98,15 +98,6 @@ if ($__announcement !== '') { echo '
                   $jn = array_map(function($j){ return $j['first_name'].' '.$j['last_name']; }, $js);
                   echo ' — bringing '.h(implode(', ', $jn)).' to judge';
                   if ($u['is_admin']) {
-                    foreach ($js as $j) {
-                      echo ' <form class="inline" method="post" action="/judge_actions.php" onsubmit="return confirm(\'Remove judge?\')">'
-                         . '<input type="hidden" name="csrf" value="'.h(csrf_token()).'">'
-                         . '<input type="hidden" name="action" value="detach_one">'
-                         . '<input type="hidden" name="signup_id" value="'.h($r['id']).'">'
-                         . '<input type="hidden" name="judge_id" value="'.h($j['judge_id']).'">'
-                         . '<button class="button danger" style="padding:2px 6px;font-size:12px;">(X)</button>'
-                         . '</form>';
-                    }
                     echo ' <a href="#" class="small" onclick="openEditJudgesModal(\'editJudges_'.$r['id'].'\'); return false;">edit judges</a>';
                   } elseif ($isMine) {
                     echo ' <a href="#" class="small" onclick="openEditJudgesModal(\'editJudges_'.$r['id'].'\'); return false;">edit judges</a>';
@@ -131,6 +122,8 @@ if ($__announcement !== '') { echo '
           $attached = $judgesBySignup[$sid] ?? [];
           $attachedIds = array_map(function($j){ return (int)$j['judge_id']; }, $attached);
           $modalId = 'editJudges_'.$sid;
+          $memberIds = Signups::membersForSignup($sid);
+          $teamJudges = Judges::listBySponsors($memberIds);
         ?>
         <div id="<?=h($modalId)?>" class="modal hidden" aria-hidden="true">
           <div class="modal-content">
@@ -142,7 +135,7 @@ if ($__announcement !== '') { echo '
               <input type="hidden" name="signup_id" value="<?=h($sid)?>">
               <input type="hidden" name="ref" value="/index.php">
               <div style="max-height:260px; overflow:auto; border:1px solid #e8e8ef; border-radius:8px; padding:8px;">
-                <?php foreach ($allJudges as $j): ?>
+                <?php foreach ($teamJudges as $j): ?>
                   <?php $checked = in_array((int)$j['id'], $attachedIds, true) ? 'checked' : ''; ?>
                   <label style="display:block;">
                     <input type="checkbox" name="judge_ids[]" value="<?=$j['id']?>" <?=$checked?>> <?=h($j['last_name'].', '.$j['first_name'])?>
@@ -339,5 +332,4 @@ function closeEditJudgesModal(id) {
   }
 }
 </script>
-<?php endif ?>
 <?php footer_html(); ?>
