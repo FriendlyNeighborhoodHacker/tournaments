@@ -15,7 +15,7 @@ function header_html($title) {
   }
   echo '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">';
   echo '<title>'.h($title).' - '.h(APP_NAME).'</title>';
-  echo '<link rel="stylesheet" href="/styles.css">';
+  echo '<link rel="stylesheet" href="/styles.css?v=20250827">';
   echo '</head><body><header><h1>'.h(APP_NAME).'</h1><nav>'.$nav.'</nav></header><main>';
 }
 
