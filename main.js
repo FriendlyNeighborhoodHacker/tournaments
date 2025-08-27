@@ -64,9 +64,18 @@ function submitSignupForm(form) {
   return true; // normal POST
 }
 
-// Close modal on backdrop click or Esc
-document.addEventListener('keydown', (e)=>{ if (e.key === 'Escape') closeSignupModal(); });
+/* Close modal on backdrop click or Esc (guarded for pages without the modal, resilient under debugger) */
+document.addEventListener('keydown', (e)=>{ 
+  try {
+    const m = document.getElementById('signupModal');
+    if (!m) return;
+    if (e.key === 'Escape' && !m.classList.contains('hidden')) closeSignupModal();
+  } catch (_) { /* ignore */ }
+});
 document.addEventListener('click', (e)=>{ 
-  const m = document.getElementById('signupModal');
-  if (m && !m.classList.contains('hidden') && e.target === m) closeSignupModal();
+  try {
+    const m = document.getElementById('signupModal');
+    if (!m) return;
+    if (!m.classList.contains('hidden') && e.target === m) closeSignupModal();
+  } catch (_) { /* ignore */ }
 });
