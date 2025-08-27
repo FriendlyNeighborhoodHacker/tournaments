@@ -224,7 +224,7 @@ if ($__announcement !== '') {
           <input type="hidden" name="action" value="delete">
           <input type="hidden" name="signup_id" value="<?=h($mine['id'])?>">
           <input type="submit" id="withdrawSubmit_<?=h($mine['id'])?>" hidden>
-          <a href="#" onclick="document.getElementById('withdrawSubmit_<?=h($mine['id'])?>').click(); return false;">withdraw your team</a><br>
+          <a href="#" onclick="document.getElementById('withdrawSubmit_<?=h($mine['id'])?>').click(); return false;"><br>withdraw your team</a><br>
         </form>
       <?php endif; ?>
 
