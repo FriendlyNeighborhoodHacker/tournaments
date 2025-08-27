@@ -71,14 +71,13 @@ if ($__announcement !== '') { echo '
         <p><strong>Teams:</strong></p>
         <ul>
           <?php foreach ($allTeams as $r): ?>
-            <li><?php if ($mine && isset($mine['id']) && $r['id'] == $mine['id']): ?><strong><?=h($r['members'])?></strong><?php else: ?><?=h($r['members'])?><?php endif; ?></li>
+            <li><?php if ($mine && isset($mine['id']) && $r['id'] == $mine['id']): ?><strong><?=h($r['members'])?></strong><?php else: ?><?=h($r['members'])?><?php endif; ?> (signed-up by <?=h($r['cb_fn'].' '.$r['cb_ln'])?>)</li>
           <?php endforeach; ?>
         </ul>
       <?php endif; ?>
 
       <?php if ($mine): ?>
         <div class="badge success">You’re signed up</div>
-        <p><strong>Signed by:</strong> <?=h($mine['cb_fn'].' '.$mine['cb_ln'])?> (<?=h($mine['created_at'])?>)</p>
         <?php if (!empty($mine['comment'])): ?><p><strong>Comment:</strong> <?=nl2br(h($mine['comment']))?></p><?php endif; ?>
         <form class="inline" method="post" action="/signup_actions.php">
           <input type="hidden" name="csrf" value="<?=h(csrf_token())?>">
@@ -86,6 +85,12 @@ if ($__announcement !== '') { echo '
           <input type="hidden" name="signup_id" value="<?=h($mine['id'])?>">
           <button class="danger" onclick="return confirm('Un-sign your team from this tournament?')">Un-sign Team</button>
         </form>
+        <?php if ($u['is_admin']): ?>
+          <button class="primary" onclick='openSignupModal(<?=json_encode([
+            "tournament_id"=>$t["id"],
+            "tournament_name"=>$t["name"]
+          ])?>)'>Sign up</button>
+        <?php endif; ?>
       <?php else: ?>
         <button class="primary" onclick='openSignupModal(<?=json_encode([
           "tournament_id"=>$t["id"],
