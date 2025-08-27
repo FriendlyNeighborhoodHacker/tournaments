@@ -189,7 +189,7 @@ if ($__announcement !== '') {
       </div>
       <?php endif; ?>
 
-      <?php if ($mine): ?>
+      <?php if ($mine): // IF MINE?>
         <div class="badge success">You’re signed up</div>
         <?php if (!empty($mine['comment'])): ?><p><strong>Comment:</strong> <?=nl2br(h($mine['comment']))?></p><?php endif; ?>
         <form class="inline" method="post" action="/signup_actions.php" onsubmit="return confirm('Un-sign your team from this tournament?')">
@@ -205,18 +205,18 @@ if ($__announcement !== '') {
             "tournament_name"=>$t["name"]
           ])?>)'>Sign up another team</button>
         <?php endif; ?>
-      <?php else: ?>
+        <?php
+          $rideState = $my_has_ride[$tournament_id] ?? null;
+          if ($rideState === null) :
+        ?>
+          <button type="button" onclick="openRideModal(<?=h($tournament_id)?>)">Do you have a ride?</button>
+        <?php endif; ?>
+      <?php else: // ELSE MINE ?>
         <button class="primary" onclick='openSignupModal(<?=json_encode([
           "tournament_id"=>$t["id"],
           "tournament_name"=>$t["name"]
         ])?>)'>Sign up</button>
-      <?php endif; ?>
-        <?php
-          $rideState = $my_has_ride[$tournament_id] ?? null;
-          if ($rideState === null):
-        ?>
-          <button type="button" onclick="openRideModal(<?=h($tournament_id)?>)">Do you have a ride?</button>
-        <?php endif; ?>
+      <?php endif; // ENDIF MINE ?>
 
       <?php if ($u['is_admin']): ?>
         <button type="button" onclick="openAdminRidesModal('ridesModal_<?=h($t['id'])?>')">See rides</button>
