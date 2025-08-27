@@ -190,7 +190,13 @@ if ($__announcement !== '') {
       <?php endif; ?>
 
       <?php if ($mine): // IF MINE?>
-          <p><strong><div class="badge success">You’re signed up</div>Manage:</strong></p>
+        <form class="inline" method="post" action="/signup_actions.php" onsubmit="return confirm('Un-sign your team from this tournament?')">
+          <input type="hidden" name="csrf" value="<?=h(csrf_token())?>">
+          <input type="hidden" name="action" value="delete">
+          <input type="hidden" name="signup_id" value="<?=h($mine['id'])?>">
+          <input type="submit" id="withdrawSubmit_<?=h($mine['id'])?>" hidden>
+        </form>
+          <p><strong>You’re signed up.</strong></p>
         <ul>
         <?php if (!empty($mine['comment'])): ?><li><strong>Comment:</strong> <?=nl2br(h($mine['comment']))?></li><?php endif; ?>
           <li>Ride status:
@@ -200,19 +206,13 @@ if ($__announcement !== '') {
         ?>
           <a href="#" onclick="openRideModal(<?=h($tournament_id)?>); return false;">Not set</a>
           <?php elseif ($rideState == 0) : // ELSE NEEDS RIDE ?>
-            Ride status: <a href="#" onclick="openRideModal(<?=h($tournament_id)?>); return false;">Needs Ride</a><
+            <a href="#" onclick="openRideModal(<?=h($tournament_id)?>); return false;">Needs Ride</a><
           <?php else: // ELSE (HAS RIDE) ?>
-            Ride status: <a href="#" onclick="openRideModal(<?=h($tournament_id)?>); return false;">Has Ride</a>
+            <a href="#" onclick="openRideModal(<?=h($tournament_id)?>); return false;">Has Ride</a>
         <?php endif; // RIDE SET?>
           </li>
       <?php if ($mine): // IF MINE?>
-        <form class="inline" method="post" action="/signup_actions.php" onsubmit="return confirm('Un-sign your team from this tournament?')">
-          <input type="hidden" name="csrf" value="<?=h(csrf_token())?>">
-          <input type="hidden" name="action" value="delete">
-          <input type="hidden" name="signup_id" value="<?=h($mine['id'])?>">
-          <input type="submit" id="withdrawSubmit_<?=h($mine['id'])?>" hidden>
           <li><a href="#" onclick="document.getElementById('withdrawSubmit_<?=h($mine['id'])?>').click(); return false;"><br>withdraw your team</a></li>
-        </form>
       <?php endif; ?>
 
         <?php if ($u['is_admin']): ?>
