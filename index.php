@@ -57,7 +57,7 @@ echo '<div class="welcome-banner">Welcome back, '.h($u['first_name']).'!</div>';
 $__announcement = Settings::get('announcement', '');
 if ($__announcement !== '') { 
   echo '
-    <div class="card" style="background:var(--c-bg);border:1px solid var(--c-accent-3);">
+    <div class="card" style="background:#fff3cd;border:1px solid #ffeeba;">
     <h2><strong>Announcement</strong></h2>
     <p>' . nl2br(h($__announcement)) . '</p></div>'; 
 }
@@ -146,7 +146,7 @@ if ($__announcement !== '') {
               <input type="hidden" name="action" value="bulk_set">
               <input type="hidden" name="signup_id" value="<?=h($sid)?>">
               <input type="hidden" name="ref" value="/index.php">
-              <div style="max-height:260px; overflow:auto; border:1px solid var(--c-bg); border-radius:8px; padding:8px;">
+              <div style="max-height:260px; overflow:auto; border:1px solid #e8e8ef; border-radius:8px; padding:8px;">
                 <?php foreach ($teamJudges as $j): ?>
                   <?php $checked = in_array((int)$j['id'], $attachedIds, true) ? 'checked' : ''; ?>
                   <label style="display:block;">
@@ -228,7 +228,7 @@ if ($__announcement !== '') {
             <input type="hidden" name="action" value="bulk_set">
             <input type="hidden" name="signup_id" value="<?=h($sid)?>">
             <input type="hidden" name="ref" value="/index.php">
-            <div style="max-height:260px; overflow:auto; border:1px solid var(--c-bg); border-radius:8px; padding:8px;">
+            <div style="max-height:260px; overflow:auto; border:1px solid #e8e8ef; border-radius:8px; padding:8px;">
               <?php foreach ($teamJudges as $j): ?>
                 <?php $checked = in_array((int)$j['id'], $attachedIds, true) ? 'checked' : ''; ?>
                 <label style="display:block;">
@@ -397,7 +397,7 @@ if ($__announcement !== '') {
       <label><input type="checkbox" id="m_go_maverick" name="go_maverick" value="1" onchange="toggleMaverick()"> Go Maverick (solo)</label>
       <div id="partnerWrap">
         <label>Choose partner(s) (1–2 other people)</label>
-        <div id="m_partners_box" class="partners-box" style="max-height:220px; overflow:auto; border:1px solid var(--c-bg); border-radius:8px; padding:8px;"></div>
+        <div id="m_partners_box" class="partners-box" style="max-height:220px; overflow:auto; border:1px solid #e8e8ef; border-radius:8px; padding:8px;"></div>
         <small class="small" id="partnersHelp">You’ll be included automatically; choose 1–2 partners (2–3 total).</small>
       </div>
       <label>Comment (optional)
