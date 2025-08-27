@@ -210,7 +210,7 @@ if ($__announcement !== '') {
           if ($rideState === null) :
         ?>
           <button type="button" onclick="openRideModal(<?=h($tournament_id)?>)">Do you have a ride?</button>
-          <?php else if $rideState == 0 : ?>
+          <?php elseif $rideState == 0 : ?>
             You need a ride for this tournament.
           <?php else: ?>
             You have a ride for this tournament.
