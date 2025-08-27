@@ -190,14 +190,14 @@ if ($__announcement !== '') {
       <?php endif; ?>
 
       <?php if ($mine): // IF MINE?>
-        <div class="badge success">You’re signed up</div>
+        <div class="badge success">You’re signed up</div><br>
         <?php if (!empty($mine['comment'])): ?><p><strong>Comment:</strong> <?=nl2br(h($mine['comment']))?></p><?php endif; ?>
         <form class="inline" method="post" action="/signup_actions.php" onsubmit="return confirm('Un-sign your team from this tournament?')">
           <input type="hidden" name="csrf" value="<?=h(csrf_token())?>">
           <input type="hidden" name="action" value="delete">
           <input type="hidden" name="signup_id" value="<?=h($mine['id'])?>">
           <input type="submit" id="withdrawSubmit_<?=h($mine['id'])?>" hidden>
-          <a href="#" onclick="document.getElementById('withdrawSubmit_<?=h($mine['id'])?>').click(); return false;">Withdraw Team</a>
+          <a href="#" onclick="document.getElementById('withdrawSubmit_<?=h($mine['id'])?>').click(); return false;">Withdraw Team</a><br>
         </form>
         <?php
           $rideState = $my_has_ride[$tournament_id] ?? null;
