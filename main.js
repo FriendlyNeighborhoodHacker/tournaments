@@ -13,8 +13,10 @@ function openSignupModal(t) {
   document.getElementById('signupModal').setAttribute('aria-hidden','false');
 }
 function closeSignupModal() {
-  document.getElementById('signupModal').classList.add('hidden');
-  document.getElementById('signupModal').setAttribute('aria-hidden','true');
+  const m = document.getElementById('signupModal');
+  if (!m) return;
+  m.classList.add('hidden');
+  m.setAttribute('aria-hidden','true');
 }
 function populatePartners() {
   const box = document.getElementById('m_partners_box');
@@ -66,5 +68,5 @@ function submitSignupForm(form) {
 document.addEventListener('keydown', (e)=>{ if (e.key === 'Escape') closeSignupModal(); });
 document.addEventListener('click', (e)=>{ 
   const m = document.getElementById('signupModal');
-  if (!m.classList.contains('hidden') && e.target === m) closeSignupModal();
+  if (m && !m.classList.contains('hidden') && e.target === m) closeSignupModal();
 });
