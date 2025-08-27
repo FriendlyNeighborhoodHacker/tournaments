@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__.'/partials.php';
 require_admin();
+require_once __DIR__.'/lib/TournamentManagement.php';
 $u = current_user();
 $isAdmin = (bool)$u['is_admin'];
 
@@ -11,21 +12,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   if (!$isAdmin) { http_response_code(403); exit('Admins only'); }
   require_csrf();
   if (isset($_POST['create'])) {
-    $max = trim($_POST['max_teams'] ?? '') === '' ? null : (int)$_POST['max_teams'];
-    $deadline = trim($_POST['signup_deadline'] ?? '') === '' ? null : $_POST['signup_deadline'];
-    $st = $pdo->prepare("INSERT INTO tournaments (name,location,start_date,end_date,max_teams,signup_deadline) VALUES (?,?,?,?,?,?)");
-    $st->execute([trim($_POST['name']), trim($_POST['location']), $_POST['start_date'], $_POST['end_date'], $max, $deadline]);
-    $msg = 'Tournament created.';
+    try {
+      TournamentManagement::create($_POST);
+      $msg = 'Tournament created.';
+    } catch (Throwable $e) {
+      $msg = 'Failed to create tournament.';
+    }
   } elseif (isset($_POST['update'])) {
-    $max = trim($_POST['max_teams'] ?? '') === '' ? null : (int)$_POST['max_teams'];
-    $deadline = trim($_POST['signup_deadline'] ?? '') === '' ? null : $_POST['signup_deadline'];
-    $st = $pdo->prepare("UPDATE tournaments SET name=?, location=?, start_date=?, end_date=?, max_teams=?, signup_deadline=? WHERE id=?");
-    $st->execute([trim($_POST['name']), trim($_POST['location']), $_POST['start_date'], $_POST['end_date'], $max, $deadline, (int)$_POST['id']]);
-    $msg = 'Tournament updated.';
+    try {
+      TournamentManagement::update((int)$_POST['id'], $_POST);
+      $msg = 'Tournament updated.';
+    } catch (Throwable $e) {
+      $msg = 'Failed to update tournament.';
+    }
   } elseif (isset($_POST['delete'])) {
-    $st = $pdo->prepare("DELETE FROM tournaments WHERE id=?");
-    $st->execute([(int)$_POST['id']]);
-    $msg = 'Tournament deleted.';
+    try {
+      TournamentManagement::delete((int)$_POST['id']);
+      $msg = 'Tournament deleted.';
+    } catch (Throwable $e) {
+      $msg = 'Failed to delete tournament.';
+    }
   }
 }
 
