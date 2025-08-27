@@ -55,17 +55,20 @@ $__err = trim($_GET['error'] ?? '');
 if ($__err !== '') { echo '<p class="error">'.h($__err).'</p>'; }
 echo '<div class="welcome-banner">Welcome back, '.h($u['first_name']).'!</div>';
 $__announcement = Settings::get('announcement', '');
-if ($__announcement !== '') { echo '
-  <div class="card" style="background:#fff3cd;border:1px solid #ffeeba;">
-  <h2><strong>Announcement</strong></h2>
-  <p>'.nl2br(h($__announcement)).'</p></div>'; }
+if ($__announcement !== '') { 
+  echo '
+    <div class="card" style="background:#fff3cd;border:1px solid #ffeeba;">
+    <h2><strong>Announcement</strong></h2>
+    <p>' . nl2br(h($__announcement)) . '</p></div>'; 
+}
 ?>
+
 <h2>Upcoming Tournaments</h2>
-<?php if(empty($tournaments)): ?>
+<?php if(empty($tournaments)): // IF EMPTY TOURNAMENTS ?>
   <p>No upcoming tournaments yet.</p>
-<?php else: ?>
+<?php else: // IF EMPTY TOURNAMENTS ?>
   <div class="grid">
-<?php foreach($tournaments_by_id as $tournament_id => $tournament):
+<?php foreach($tournaments_by_id as $tournament_id => $tournament): // FOREACH TOURNAMENT
 	$t = $tournament;
 	$mine = $my_by_t[$tournament_id] ?? null; 
 ?>
@@ -224,6 +227,8 @@ if ($__announcement !== '') { echo '
     </div>
   <?php endforeach; ?>
   </div>
+  <?php endif; // IF EMPTY TOURNAMENTS ?>
+
   <?php if ($u['is_admin']): ?>
   <?php foreach($tournaments_by_id as $tournament_id => $t):
     $members = Signups::membersWithRideForTournament($t['id']);
@@ -332,5 +337,4 @@ function closeEditJudgesModal(id) {
   }
 }
 </script>
-<?php endif ?>
 <?php footer_html(); ?>
