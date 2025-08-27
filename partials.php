@@ -15,7 +15,7 @@ function header_html($title) {
     };
     $nav .= $L('/index.php','Home').' | ';
     $nav .= $L('/upcoming_tournaments.php','Upcoming Tournaments').' | ';
-    if ($u['is_admin']) { $nav .= $L('/admin_tournaments.php','Tournaments').' | '; }
+    if ($u['is_admin']) { $nav .= $L('/admin_tournaments.php','Manage Tournaments').' | '; }
     $nav .= $L('/judges.php','Judges').' | ';
     if ($u['is_admin']) $nav .= $L('/admin_users.php','Users').' | '.$L('/admin_settings.php','Settings').' | ';
     $nav .= $L('/change_password.php','Change Password').' | '.$L('/logout.php','Log out');
