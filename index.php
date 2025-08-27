@@ -124,7 +124,7 @@ if ($__announcement !== '') {
         <p><strong>Other Tournament Judges:</strong> <?= h(implode(', ', array_map(function($j){ return $j['first_name'].' '.$j['last_name']; }, $tournamentJudges))) ?></p>
       <?php endif; ?>
 
-      <?php if ($u['is_admin']): ?>
+      <?php if (($u['is_admin']) && (count($allTeams) > 0)): ?>
         <a href="#" class="small" onclick="openEditJudgesModal('tjModal_<?=h($t['id'])?>'); return false;">Manage tournament judges</a>
       <?php endif; ?>
 
