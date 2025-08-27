@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
 }
 
-$rows = $pdo->query("SELECT * FROM tournaments ORDER BY start_date DESC")->fetchAll();
+$rows = $pdo->query("SELECT * FROM tournaments ORDER BY start_date")->fetchAll();
 header_html('Tournaments');
 ?>
 <h2>Tournaments</h2>
