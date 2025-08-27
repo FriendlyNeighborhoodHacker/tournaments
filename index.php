@@ -206,7 +206,7 @@ if ($__announcement !== '') {
         ?>
           <a href="#" onclick="openRideModal(<?=h($tournament_id)?>); return false;">Not set</a>
           <?php elseif ($rideState == 0) : // ELSE NEEDS RIDE ?>
-            <a href="#" onclick="openRideModal(<?=h($tournament_id)?>); return false;">Needs Ride</a><
+            <a href="#" onclick="openRideModal(<?=h($tournament_id)?>); return false;">Needs Ride</a>
           <?php else: // ELSE (HAS RIDE) ?>
             <a href="#" onclick="openRideModal(<?=h($tournament_id)?>); return false;">Has Ride</a>
         <?php endif; // RIDE SET?>
