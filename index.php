@@ -192,13 +192,6 @@ if ($__announcement !== '') {
       <?php if ($mine): // IF MINE?>
         <div class="badge success">You’re signed up</div><br>
         <?php if (!empty($mine['comment'])): ?><p><strong>Comment:</strong> <?=nl2br(h($mine['comment']))?></p><?php endif; ?>
-        <form class="inline" method="post" action="/signup_actions.php" onsubmit="return confirm('Un-sign your team from this tournament?')">
-          <input type="hidden" name="csrf" value="<?=h(csrf_token())?>">
-          <input type="hidden" name="action" value="delete">
-          <input type="hidden" name="signup_id" value="<?=h($mine['id'])?>">
-          <input type="submit" id="withdrawSubmit_<?=h($mine['id'])?>" hidden>
-          <a href="#" onclick="document.getElementById('withdrawSubmit_<?=h($mine['id'])?>').click(); return false;">Withdraw Team</a><br>
-        </form>
         <?php
           $rideState = $my_has_ride[$tournament_id] ?? null;
           if ($rideState === null) : // IF RIDE NOT SET
@@ -215,6 +208,13 @@ if ($__announcement !== '') {
             "tournament_name"=>$t["name"]
           ])?>)'>Sign up another team</button>
         <?php endif; ?> 
+        <form class="inline" method="post" action="/signup_actions.php" onsubmit="return confirm('Un-sign your team from this tournament?')">
+          <input type="hidden" name="csrf" value="<?=h(csrf_token())?>">
+          <input type="hidden" name="action" value="delete">
+          <input type="hidden" name="signup_id" value="<?=h($mine['id'])?>">
+          <input type="submit" id="withdrawSubmit_<?=h($mine['id'])?>" hidden>
+          <a href="#" onclick="document.getElementById('withdrawSubmit_<?=h($mine['id'])?>').click(); return false;">withdraw your team</a><br>
+        </form>
       <?php else: // ELSE MINE ?>
         <button class="primary" onclick='openSignupModal(<?=json_encode([
           "tournament_id"=>$t["id"],
