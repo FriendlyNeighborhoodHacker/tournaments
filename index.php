@@ -238,7 +238,9 @@ if ($__announcement !== '') {
         <ul>
           <li>Has ride: <?= empty($has_names) ? '<em>none</em>' : implode(', ', $has_names) ?></li>
           <li>Needs ride: <?= empty($needs_names) ? '<em>none</em>' : implode(', ', $needs_names) ?></li>
-          <li>Unspecified ride: <?= empty($unspec_names) ? '<em>none</em>' : implode(', ', $unspec_names) ?></li>
+          <?php if (!empty($unspec_names)): ?>
+          <li>Unspecified ride: <?= implode(', ', $unspec_names) ?></li>
+          <?php endif; ?>
         </ul>
       <?php endif; ?>
 
