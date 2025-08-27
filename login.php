@@ -20,7 +20,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($u['email_verified_at'])) {
       $error = 'Please verify your email before signing in. Check your inbox for the confirmation link.';
     } else {
+      session_regenerate_id(true);
       $_SESSION['uid'] = $u['id'];
+      $_SESSION['last_activity'] = time();
+      $_SESSION['public_computer'] = !empty($_POST['public_computer']) ? 1 : 0;
       header('Location: /index.php'); exit;
     }
   } else $error = 'Invalid email or password.';
@@ -39,8 +42,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <input type="hidden" name="csrf" value="<?=h(csrf_token())?>">
       <label>School Email:<input type="email" name="email" required></label>
       <label>Password<input type="password" name="password" required></label>
+      <label class="inline"><input type="checkbox" name="public_computer" value="1"> This is a public computer</label>
       <button type="submit">Sign in</button>
     </form>
-    <p class="small" style="margin-top:0.75rem;">Don&#39;t have an account? <a href="/register.php">Create one</a></p>
+    <p class="small" style="margin-top:0.75rem;"><a href="/forgot_password.php">Forgot your password?</a></p>
+    <p class="small" style="margin-top:0.25rem;">Don&#39;t have an account? <a href="/register.php">Create one</a></p>
   </div>
 </body></html>
