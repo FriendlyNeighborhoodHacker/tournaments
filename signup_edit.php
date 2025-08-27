@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
       $stm = $pdo->prepare("INSERT INTO signup_members (signup_id,tournament_id,user_id) VALUES (?,?,?)");
       foreach ($member_ids as $uid) $stm->execute([$id, $signup['tournament_id'], $uid]);
       $pdo->commit();
-      header('Location: /coach.php'); exit;
+      header('Location: /upcoming_tournaments.php'); exit;
     } catch (Throwable $e) {
       $pdo->rollBack();
       $err = 'Failed to save changes.';
@@ -91,7 +91,7 @@ $tt->execute([$signup['tournament_id']]); echo h($tt->fetch()['name']);
   <label>Comment<textarea name="comment" rows="3"><?=h($signup['comment'])?></textarea></label>
   <div class="actions">
     <button class="primary">Save</button>
-    <a class="button" href="/coach.php">Cancel</a>
+    <a class="button" href="/upcoming_tournaments.php">Cancel</a>
   </div>
 </form>
 <?php footer_html(); ?>
