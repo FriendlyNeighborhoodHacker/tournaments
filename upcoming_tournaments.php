@@ -92,8 +92,8 @@ if ($__announcement !== '') { echo '<h2><strong>Announcement</strong></h2><div c
         echo '<p><strong>Unspecified Ride ('.$cntUnspec.'):</strong> '.h(implode(', ', $unspec_names)).'</p>';
       }
     ?>
-    <?php endif; // n_teams > 0 ?>
     </div>
+    <?php endif; // n_teams > 0 ?>
   </section>
   <br>
 <?php endforeach; ?>
