@@ -16,8 +16,9 @@ if ($__announcement !== '') { echo '<h2><strong>Announcement</strong></h2><div c
   <section class="coach-section">
     <h3><?=h($t['name'])?> — <?=h($t['start_date'])?> → <?=h($t['end_date'])?> (<?=h($t['location'])?>)</h3>
     <?php
-  
+
       $rows = Signups::teamsForTournament($t['id']);
+      $n_teams = count($rows);
     ?>
     <?php if (empty($rows)): ?>
       <p><em>No sign-ups yet.</em></p>
@@ -58,6 +59,8 @@ if ($__announcement !== '') { echo '<h2><strong>Announcement</strong></h2><div c
         </tbody>
       </table>
     <?php endif; ?>
+    <?php if ($n_teams > 0): ?>
+
     <div class="summary-lines">
     <?php
       $tJudges = Judges::judgesForTournament($t['id']);
@@ -92,6 +95,7 @@ if ($__announcement !== '') { echo '<h2><strong>Announcement</strong></h2><div c
       }
     ?>
     </div>
+    <?php endif; ?>
   </section>
   <br>
 <?php endforeach; ?>
