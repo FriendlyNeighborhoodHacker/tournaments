@@ -268,7 +268,7 @@ if ($__announcement !== '') {
         <?php endif; // RIDE SET?>
           </li>
       <?php if ($mine): // IF MINE?>
-          <li><a href="#" onclick="document.getElementById('withdrawSubmit_<?=h($mine['id'])?>').click(); return false;">withdraw your team</a></li>
+          <li><a href="#" onclick="document.getElementById('withdrawSubmit_<?=h($mine['id'])?>').click(); return false;">Withdraw team</a></li>
       <?php endif; ?>
 
         </ul>
