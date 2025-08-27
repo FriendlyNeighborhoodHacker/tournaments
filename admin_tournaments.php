@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__.'/partials.php';
-require_login();
+require_admin();
 $u = current_user();
 $isAdmin = (bool)$u['is_admin'];
 
