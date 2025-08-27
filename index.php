@@ -106,7 +106,7 @@ if ($__announcement !== '') { echo '
           <button class="primary" onclick='openSignupModal(<?=json_encode([
             "tournament_id"=>$t["id"],
             "tournament_name"=>$t["name"]
-          ])?>)'>Sign up</button>
+          ])?>)'>Sign up another team</button>
         <?php endif; ?>
       <?php else: ?>
         <button class="primary" onclick='openSignupModal(<?=json_encode([
