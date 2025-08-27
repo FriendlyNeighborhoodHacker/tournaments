@@ -2,6 +2,7 @@
 require_once __DIR__.'/partials.php';
 require_login();
 
+require_once __DIR__.'/lib/UserManagement.php';
 $pdo = pdo();
 $u = current_user();
 $msg = null;
@@ -21,9 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $err = 'Current password is incorrect.';
   } else {
     try {
-      $hash = password_hash($new, PASSWORD_DEFAULT);
-      $st = $pdo->prepare('UPDATE users SET password_hash=? WHERE id=?');
-      $st->execute([$hash, $u['id']]);
+      UserManagement::changePassword((int)$u['id'], $new);
       session_regenerate_id(true);
       $msg = 'Password updated.';
     } catch (Throwable $e) {

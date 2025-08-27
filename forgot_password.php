@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__.'/partials.php';
 require_once __DIR__.'/mailer.php';
+require_once __DIR__.'/lib/UserManagement.php';
 
 if (current_user()) { header('Location: /index.php'); exit; }
 
@@ -22,8 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $hash  = hash('sha256', $token);
 
         // Set 30-minute validity
-        $upd = pdo()->prepare('UPDATE users SET password_reset_token_hash=?, password_reset_expires_at=DATE_ADD(NOW(), INTERVAL 30 MINUTE) WHERE id=?');
-        $upd->execute([$hash, $u['id']]);
+        UserManagement::setPasswordResetToken((int)$u['id'], $hash, 30);
 
         // Build reset URL
         $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';

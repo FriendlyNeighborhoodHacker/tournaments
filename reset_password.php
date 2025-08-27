@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__.'/partials.php';
+require_once __DIR__.'/lib/UserManagement.php';
 
 if (current_user()) { header('Location: /index.php'); exit; }
 
@@ -35,14 +36,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           $error = 'Invalid or expired reset link.';
         } else {
           try {
-            $hash = password_hash($new, PASSWORD_DEFAULT);
-            $pdo->beginTransaction();
-            $pdo->prepare('UPDATE users SET password_hash=?, password_reset_token_hash=NULL, password_reset_expires_at=NULL WHERE id=?')->execute([$hash, $u['id']]);
-            $pdo->commit();
+            UserManagement::finalizePasswordReset((int)$u['id'], $new);
             $success = 'Your password has been reset. You can now sign in.';
             $mode = 'done';
           } catch (Throwable $e) {
-            if ($pdo->inTransaction()) $pdo->rollBack();
             $error = 'Failed to reset password. Please try again.';
           }
         }

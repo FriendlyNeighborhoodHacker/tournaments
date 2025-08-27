@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__.'/partials.php';
 require_once __DIR__.'/mailer.php';
+require_once __DIR__.'/lib/UserManagement.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') { header('Location: /login.php'); exit; }
 require_csrf();
@@ -20,8 +21,7 @@ try {
   if ($u && empty($u['email_verified_at'])) {
     // Generate a fresh token and save
     $token = bin2hex(random_bytes(32));
-    $upd = $pdo->prepare('UPDATE users SET email_verify_token=? WHERE id=?');
-    $upd->execute([$token, $u['id']]);
+    UserManagement::setEmailVerifyToken((int)$u['id'], $token);
 
     // Build and send verification email
     $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';

@@ -2,6 +2,7 @@
 require_once __DIR__.'/partials.php';
 require_once __DIR__.'/settings.php';
 require_once __DIR__.'/mailer.php';
+require_once __DIR__.'/lib/UserManagement.php';
 
 // If already logged in, go home
 if (current_user()) { header('Location: /index.php'); exit; }
@@ -35,10 +36,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   if (!$errors) {
     try {
-      $hash = password_hash($pass, PASSWORD_DEFAULT);
       $token = bin2hex(random_bytes(32));
-      $st = pdo()->prepare('INSERT INTO users (first_name,last_name,email,phone,password_hash,is_coach,is_admin,email_verify_token,email_verified_at) VALUES (?,?,?,?,?,?,?,?,?)');
-      $st->execute([$first, $last, $email, $phone !== '' ? $phone : null, $hash, 0, 0, $token, null]);
+      UserManagement::createSelf([
+        'first_name' => $first,
+        'last_name'  => $last,
+        'email'      => $email,
+        'phone'      => ($phone !== '' ? $phone : null),
+        'password'   => $pass,
+      ], $token);
 
       // Send verification email
       $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';

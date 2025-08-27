@@ -2,6 +2,7 @@
 require_once __DIR__.'/partials.php';
 require_admin();
 
+require_once __DIR__.'/lib/UserManagement.php';
 $pdo = pdo();
 $msg = null;
 $err = null;
@@ -9,26 +10,19 @@ $err = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   require_csrf();
   if (isset($_POST['create'])) {
-    $hash = password_hash($_POST['password'], PASSWORD_DEFAULT);
-    // Admin-created users are auto-verified (no email token required)
-    $st = $pdo->prepare("INSERT INTO users (first_name,last_name,email,phone,password_hash,is_coach,is_admin,email_verify_token,email_verified_at) VALUES (?,?,?,?,?,?,?,NULL,NOW())");
-    $st->execute([trim($_POST['first_name']), trim($_POST['last_name']), trim($_POST['email']), trim($_POST['phone']), $hash, (int)!empty($_POST['is_coach']), (int)!empty($_POST['is_admin'])]);
+    UserManagement::createAdmin($_POST);
     $msg = 'User created.';
   } elseif (isset($_POST['update'])) {
     $id = (int)$_POST['id'];
     if (!empty($_POST['password'])) {
-      $hash = password_hash($_POST['password'], PASSWORD_DEFAULT);
-      $st = $pdo->prepare("UPDATE users SET first_name=?, last_name=?, email=?, phone=?, password_hash=?, is_coach=?, is_admin=? WHERE id=?");
-      $st->execute([trim($_POST['first_name']), trim($_POST['last_name']), trim($_POST['email']), trim($_POST['phone']), $hash, (int)!empty($_POST['is_coach']), (int)!empty($_POST['is_admin']), $id]);
+      UserManagement::updateWithPassword($id, $_POST, $_POST['password']);
     } else {
-      $st = $pdo->prepare("UPDATE users SET first_name=?, last_name=?, email=?, phone=?, is_coach=?, is_admin=? WHERE id=?");
-      $st->execute([trim($_POST['first_name']), trim($_POST['last_name']), trim($_POST['email']), trim($_POST['phone']), (int)!empty($_POST['is_coach']), (int)!empty($_POST['is_admin']), $id]);
+      UserManagement::updateWithoutPassword($id, $_POST);
     }
     $msg = 'User updated.';
   } elseif (isset($_POST['delete'])) {
     try {
-      $st = $pdo->prepare("DELETE FROM users WHERE id=?");
-      $st->execute([(int)$_POST['id']]);
+      UserManagement::delete((int)$_POST['id']);
       $msg = 'User deleted.';
     } catch (PDOException $e) {
       $err = 'Cannot delete user who is part of a signup (or referenced elsewhere). Remove their signups first.';
