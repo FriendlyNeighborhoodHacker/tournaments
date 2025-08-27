@@ -157,6 +157,7 @@ if ($__announcement !== '') { echo '<h2><strong>Announcement</strong></h2><div c
     <a href="/upcoming_tournaments.php?all=1">Show all tournaments (including past)</a>
   <?php endif; ?>
 </p>
+<p class="small"><a href="/previous_tournaments.php">Previous Tournaments</a></p>
 <script>
 function openAdminRidesModal(id) {
   var m = document.getElementById(id);

@@ -326,6 +326,53 @@ if ($__announcement !== '') {
   </div>
   <?php endif; // IF EMPTY TOURNAMENTS ?>
 
+  <?php
+    // Previous Tournaments (most recent 3)
+    $previous = Tournaments::previousRecent(3);
+    if (!empty($previous)):
+  ?>
+  <h2>Previous Tournaments</h2>
+  <div class="grid">
+    <?php foreach ($previous as $pt): ?>
+      <div class="card">
+        <h3><?=h($pt['name'])?></h3>
+        <p><strong>Location:</strong> <?=h($pt['location'])?></p>
+        <p><strong>Dates:</strong> <?=h($pt['start_date'])?> → <?=h($pt['end_date'])?></p>
+        <?php
+          $prevTeams = Signups::teamsForTournament($pt['id']);
+        ?>
+        <?php if (empty($prevTeams)): ?>
+          <p><em>No sign-ups recorded.</em></p>
+        <?php else: ?>
+          <p><strong>Teams:</strong></p>
+          <ul>
+            <?php foreach ($prevTeams as $r): ?>
+              <li>
+                <?=h($r['members'])?>
+                (signed-up by <?=h($r['cb_fn'].' '.$r['cb_ln'])?>; created <?=h(Settings::formatDateTime($r['created_at']))?>)
+              </li>
+            <?php endforeach; ?>
+          </ul>
+        <?php endif; ?>
+
+        <div class="summary-lines">
+          <?php
+            // Combined judges (team-attached + tournament-attached)
+            $pJudges = Judges::judgesCombinedForTournament($pt['id']);
+            if (!empty($pJudges)) {
+              $names = array_map(function($j){ return $j['first_name'].' '.$j['last_name']; }, $pJudges);
+              echo '<p><strong>Judges ('.count($pJudges).'):</strong> '.h(implode(', ', $names)).'</p>';
+            } else {
+              echo '<p><strong>Judges (0):</strong> none</p>';
+            }
+          ?>
+        </div>
+      </div>
+    <?php endforeach; ?>
+  </div>
+  <p class="small"><a href="/previous_tournaments.php">See all previous tournaments</a></p>
+  <?php endif; ?>
+
   <?php if ($u['is_admin']): ?>
   <?php foreach($tournaments_by_id as $tournament_id => $t):
     $members = Signups::membersWithRideForTournament($t['id']);
