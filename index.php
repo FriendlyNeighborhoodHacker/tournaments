@@ -89,6 +89,12 @@ if ($__announcement !== '') { echo '
       <?php if ($mine): ?>
         <div class="badge success">You’re signed up</div>
         <?php if (!empty($mine['comment'])): ?><p><strong>Comment:</strong> <?=nl2br(h($mine['comment']))?></p><?php endif; ?>
+        <?php
+          $rideState = $my_has_ride[$tournament_id] ?? null;
+          if ($rideState === null):
+        ?>
+          <button type="button" onclick="openRideModal(<?=h($tournament_id)?>)">Do you have a ride?</button>
+        <?php endif; ?>
         <form class="inline" method="post" action="/signup_actions.php">
           <input type="hidden" name="csrf" value="<?=h(csrf_token())?>">
           <input type="hidden" name="action" value="delete">
@@ -106,12 +112,6 @@ if ($__announcement !== '') { echo '
           "tournament_id"=>$t["id"],
           "tournament_name"=>$t["name"]
         ])?>)'>Sign up</button>
-        <?php
-          $rideState = $my_has_ride[$tournament_id] ?? null;
-          if ($rideState === null):
-        ?>
-          <button type="button" onclick="openRideModal(<?=h($tournament_id)?>)">Do you have a ride?</button>
-        <?php endif; ?>
       <?php endif; ?>
 
       <?php if ($u['is_admin']): ?>
