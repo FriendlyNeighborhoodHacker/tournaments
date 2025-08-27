@@ -1,6 +1,10 @@
 <?php
 require_once __DIR__ . '/../config.php';
 
+/**
+ * Judges data access - read-only.
+ * Write operations (create/update/delete; attach/detach to signup or tournament) are handled by JudgeManagement.
+ */
 class Judges {
   // CRUD
 
@@ -12,21 +16,7 @@ class Judges {
     return pdo()->query($sql)->fetchAll();
   }
 
-  public static function create(string $first, string $last, ?string $email, ?string $phone, int $sponsorId): int {
-    $st = pdo()->prepare("INSERT INTO judges (first_name,last_name,email,phone,sponsor_id) VALUES (?,?,?,?,?)");
-    $st->execute([trim($first), trim($last), $email ?: null, $phone ?: null, $sponsorId]);
-    return (int)pdo()->lastInsertId();
-  }
 
-  public static function update(int $id, string $first, string $last, ?string $email, ?string $phone, ?int $sponsorId = null): bool {
-    if ($sponsorId !== null) {
-      $st = pdo()->prepare("UPDATE judges SET first_name=?, last_name=?, email=?, phone=?, sponsor_id=? WHERE id=?");
-      return $st->execute([trim($first), trim($last), $email ?: null, $phone ?: null, $sponsorId, $id]);
-    } else {
-      $st = pdo()->prepare("UPDATE judges SET first_name=?, last_name=?, email=?, phone=? WHERE id=?");
-      return $st->execute([trim($first), trim($last), $email ?: null, $phone ?: null, $id]);
-    }
-  }
 
   public static function find(int $id): ?array {
     $st = pdo()->prepare("SELECT * FROM judges WHERE id=?");
@@ -35,10 +25,6 @@ class Judges {
     return $row ?: null;
   }
 
-  public static function delete(int $id): bool {
-    $st = pdo()->prepare("DELETE FROM judges WHERE id=?");
-    return $st->execute([$id]);
-  }
 
   // Associations to signups
 
@@ -85,15 +71,7 @@ class Judges {
     return $out;
   }
 
-  public static function attachToSignup(int $signupId, int $judgeId): bool {
-    $st = pdo()->prepare("INSERT IGNORE INTO signup_judges (signup_id, judge_id) VALUES (?,?)");
-    return $st->execute([$signupId, $judgeId]);
-  }
 
-  public static function detachFromSignup(int $signupId, int $judgeId): bool {
-    $st = pdo()->prepare("DELETE FROM signup_judges WHERE signup_id=? AND judge_id=?");
-    return $st->execute([$signupId, $judgeId]);
-  }
 
   // List judges sponsored by any of the given user IDs
   public static function listBySponsors(array $userIds): array {
@@ -118,15 +96,7 @@ class Judges {
     return $st->fetchAll();
   }
 
-  public static function attachTournamentJudge(int $tournamentId, int $judgeId): bool {
-    $st = pdo()->prepare("INSERT IGNORE INTO tournament_judges (tournament_id, judge_id) VALUES (?,?)");
-    return $st->execute([$tournamentId, $judgeId]);
-  }
 
-  public static function detachTournamentJudge(int $tournamentId, int $judgeId): bool {
-    $st = pdo()->prepare("DELETE FROM tournament_judges WHERE tournament_id=? AND judge_id=?");
-    return $st->execute([$tournamentId, $judgeId]);
-  }
 
   // Combined judges for a tournament (union of team-attached and tournament-attached)
   public static function judgesCombinedForTournament(int $tournamentId): array {

@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__.'/partials.php';
 require_once __DIR__.'/lib/Judges.php';
+require_once __DIR__.'/lib/JudgeManagement.php';
 require_login();
 
 $pdo = pdo();
@@ -21,7 +22,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       if ($first === '' || $last === '') throw new RuntimeException('First and last name are required.');
       $sponsorId = $isAdmin ? (int)($_POST['sponsor_id'] ?? 0) : (int)$u['id'];
       if ($sponsorId <= 0) throw new RuntimeException('Sponsor is required.');
-      Judges::create($first, $last, $email !== '' ? $email : null, $phone !== '' ? $phone : null, $sponsorId);
+      JudgeManagement::create([
+        'first_name' => $first,
+        'last_name'  => $last,
+        'email'      => ($email !== '' ? $email : null),
+        'phone'      => ($phone !== '' ? $phone : null),
+        'sponsor_id' => $sponsorId
+      ]);
       $msg = 'Judge created.';
     } elseif (isset($_POST['update'])) {
       $id    = (int)($_POST['id'] ?? 0);
@@ -34,15 +41,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       $j = Judges::find($id);
       if (!$j) throw new RuntimeException('Judge not found.');
       if (!$isAdmin && (int)$j['sponsor_id'] !== (int)$u['id']) throw new RuntimeException('Not allowed.');
-      $sponsorId = $isAdmin ? (int)($_POST['sponsor_id'] ?? $j['sponsor_id']) : null;
-      Judges::update($id, $first, $last, $email !== '' ? $email : null, $phone !== '' ? $phone : null, $sponsorId);
+      $data = [
+        'first_name' => $first,
+        'last_name'  => $last,
+        'email'      => ($email !== '' ? $email : null),
+        'phone'      => ($phone !== '' ? $phone : null),
+      ];
+      if ($isAdmin) {
+        $data['sponsor_id'] = (int)($_POST['sponsor_id'] ?? $j['sponsor_id']);
+      }
+      JudgeManagement::update($id, $data);
       $msg = 'Judge updated.';
     } elseif (isset($_POST['delete'])) {
       $id = (int)($_POST['id'] ?? 0);
       $j = Judges::find($id);
       if (!$j) throw new RuntimeException('Judge not found.');
       if (!$isAdmin && (int)$j['sponsor_id'] !== (int)$u['id']) throw new RuntimeException('Not allowed.');
-      Judges::delete($id);
+      JudgeManagement::delete($id);
       $msg = 'Judge deleted.';
     }
   } catch (Throwable $e) {

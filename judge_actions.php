@@ -3,6 +3,7 @@ require_once __DIR__.'/auth.php';
 require_login();
 require_csrf();
 require_once __DIR__.'/lib/Signups.php';
+require_once __DIR__.'/lib/JudgeManagement.php';
 
 $pdo = pdo();
 $u = current_user();
@@ -24,8 +25,7 @@ if ($action === 'detach_one') {
   $signup_id = (int)($_POST['signup_id'] ?? 0);
   $judge_id  = (int)($_POST['judge_id'] ?? 0);
   if ($signup_id > 0 && $judge_id > 0) {
-    $st = $pdo->prepare('DELETE FROM signup_judges WHERE signup_id=? AND judge_id=?');
-    $st->execute([$signup_id, $judge_id]);
+    JudgeManagement::detachFromSignup($signup_id, $judge_id);
   }
   back_to();
 }
@@ -59,33 +59,9 @@ if ($action === 'bulk_set') {
       }
     }
 
-    // Find tournament for this signup
-    $tournamentId = 0;
-    $stTid = $pdo->prepare('SELECT tournament_id FROM signups WHERE id=?');
-    $stTid->execute([$signup_id]);
-    $tournamentId = (int)$stTid->fetchColumn();
-
-    $pdo->beginTransaction();
     try {
-      // Reset signup judges set
-      $pdo->prepare('DELETE FROM signup_judges WHERE signup_id=?')->execute([$signup_id]);
-      if (!empty($judge_ids)) {
-        $ins = $pdo->prepare('INSERT INTO signup_judges (signup_id, judge_id) VALUES (?,?)');
-        foreach ($judge_ids as $jid) {
-          if ($jid > 0) $ins->execute([$signup_id, $jid]);
-        }
-      }
-
-      // Rule #3: if a judge is now attached to a signup, remove them as a tournament-level judge
-      if (!empty($judge_ids) && $tournamentId > 0) {
-        $in = implode(',', array_fill(0, count($judge_ids), '?'));
-        $params = array_merge([$tournamentId], $judge_ids);
-        $pdo->prepare("DELETE FROM tournament_judges WHERE tournament_id=? AND judge_id IN ($in)")->execute($params);
-      }
-
-      $pdo->commit();
+      JudgeManagement::setJudgesForSignup($signup_id, $judge_ids);
     } catch (Throwable $e) {
-      $pdo->rollBack();
       // swallow to keep UX simple
     }
   }
@@ -97,7 +73,7 @@ if ($action === 'tournament_add') {
   $tournament_id = (int)($_POST['tournament_id'] ?? 0);
   $judge_id = (int)($_POST['judge_id'] ?? 0);
   if ($tournament_id > 0 && $judge_id > 0) {
-    $pdo->prepare('INSERT IGNORE INTO tournament_judges (tournament_id, judge_id) VALUES (?,?)')->execute([$tournament_id, $judge_id]);
+    JudgeManagement::attachTournamentJudge($tournament_id, $judge_id);
   }
   back_to();
 }
@@ -107,7 +83,7 @@ if ($action === 'tournament_remove') {
   $tournament_id = (int)($_POST['tournament_id'] ?? 0);
   $judge_id = (int)($_POST['judge_id'] ?? 0);
   if ($tournament_id > 0 && $judge_id > 0) {
-    $pdo->prepare('DELETE FROM tournament_judges WHERE tournament_id=? AND judge_id=?')->execute([$tournament_id, $judge_id]);
+    JudgeManagement::detachTournamentJudge($tournament_id, $judge_id);
   }
   back_to();
 }
