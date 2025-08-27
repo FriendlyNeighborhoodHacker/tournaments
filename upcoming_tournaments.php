@@ -16,6 +16,7 @@ if ($__announcement !== '') { echo '<h2><strong>Announcement</strong></h2><div c
   <section class="coach-section">
     <h3><?=h($t['name'])?> — <?=h($t['start_date'])?> → <?=h($t['end_date'])?> (<?=h($t['location'])?>)</h3>
     <?php
+      $n_teams = count($rows);
       $rows = Signups::teamsForTournament($t['id']);
     ?>
     <?php if (empty($rows)): ?>
@@ -57,6 +58,7 @@ if ($__announcement !== '') { echo '<h2><strong>Announcement</strong></h2><div c
         </tbody>
       </table>
     <?php endif; ?>
+    <?php if ($n_teams > 0): ?>
     <div class="summary-lines">
     <?php
       $tJudges = Judges::judgesForTournament($t['id']);
@@ -90,6 +92,7 @@ if ($__announcement !== '') { echo '<h2><strong>Announcement</strong></h2><div c
         echo '<p><strong>Unspecified Ride ('.$cntUnspec.'):</strong> '.h(implode(', ', $unspec_names)).'</p>';
       }
     ?>
+    <?php endif; // n_teams > 0 ?>
     </div>
   </section>
   <br>
