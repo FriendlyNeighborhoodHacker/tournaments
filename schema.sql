@@ -16,8 +16,14 @@ CREATE TABLE users (
   is_admin   TINYINT(1) NOT NULL DEFAULT 0,
   email_verify_token VARCHAR(64) DEFAULT NULL,
   email_verified_at DATETIME DEFAULT NULL,
+  password_reset_token_hash CHAR(64) DEFAULT NULL,
+  password_reset_expires_at DATETIME DEFAULT NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
+
+-- Indexes for users
+CREATE INDEX idx_users_email_verify_token ON users(email_verify_token);
+CREATE INDEX idx_users_pwreset_expires ON users(password_reset_expires_at);
 
 CREATE TABLE tournaments (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -67,6 +73,10 @@ CREATE TABLE judges (
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT fk_judges_sponsor FOREIGN KEY (sponsor_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
+
+-- Indexes for judges
+CREATE INDEX idx_judges_sponsor_id ON judges(sponsor_id);
+CREATE INDEX idx_judges_name ON judges(last_name, first_name);
 
 -- Judges attached to a team signup
 CREATE TABLE signup_judges (
