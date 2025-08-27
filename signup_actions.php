@@ -18,14 +18,13 @@ if ($action === 'create') {
   $tinfo->execute([$tournament_id]);
   $tournament = $tinfo->fetch();
 
-  if (!$tournament) { http_response_code(404); exit('Tournament not found'); }
+  if (!$tournament) { header('Location: /index.php?error='.rawurlencode('Tournament not found')); exit; }
 
   // Deadline: allowed through the entire deadline date (until 23:59), then blocked starting next day
   if (!empty($tournament['signup_deadline'])) {
     $today = date('Y-m-d');
     if ($today > $tournament['signup_deadline']) {
-      http_response_code(400);
-      exit('The deadline for sign ups for this tournament has passed. Please email to your coaches about signing up for this this tournament.');
+      header('Location: /index.php?error='.rawurlencode('The deadline for sign ups for this tournament has passed. Please email to your coaches about signing up for this this tournament.')); exit;
     }
   }
 
@@ -35,8 +34,7 @@ if ($action === 'create') {
     $cur->execute([$tournament_id]);
     $currentTeams = (int)$cur->fetchColumn();
     if ($currentTeams >= (int)$tournament['max_teams']) {
-      http_response_code(400);
-      exit('The maximum number of sign ups for this tournament have been reached. Please email to your coaches about signing up for this this tournament.');
+      header('Location: /index.php?error='.rawurlencode('The maximum number of sign ups for this tournament have been reached. Please email to your coaches about signing up for this this tournament.')); exit;
     }
   }
 
@@ -60,16 +58,17 @@ if ($action === 'create') {
     $coaches = $stc->fetchAll();
     if ($coaches) {
       $names = array_map(fn($r)=>$r['first_name'].' '.$r['last_name'], $coaches);
-      http_response_code(400); exit('Coaches cannot be added to teams: '.implode(', ', $names));
+      $__err = 'Coaches cannot be added to teams: '.implode(', ', $names);
+      header('Location: /index.php?error='.rawurlencode($__err)); exit;
     }
   }
 
   // Validation
   $count = count($member_ids);
   if ($go_maverick) {
-    if ($count !== 1) { http_response_code(400); exit('Maverick signup must be exactly 1 person.'); }
+    if ($count !== 1) { header('Location: /index.php?error='.rawurlencode('Maverick signup must be exactly 1 person.')); exit; }
   } else {
-    if ($count < 2 || $count > 3) { http_response_code(400); exit('Team signups must be 2 or 3 people total.'); }
+    if ($count < 2 || $count > 3) { header('Location: /index.php?error='.rawurlencode('Team signups must be 2 or 3 people total.')); exit; }
   }
 
   // Check conflicts: any member already signed up for this tournament?
@@ -80,7 +79,8 @@ if ($action === 'create') {
   $conf = $st->fetchAll();
   if ($conf) {
     $names = array_map(fn($r)=>$r['first_name'].' '.$r['last_name'], $conf);
-    http_response_code(400); exit('Already signed up: '.implode(', ', $names));
+    $__err = 'Already signed up: '.implode(', ', $names);
+    header('Location: /index.php?error='.rawurlencode($__err)); exit;
   }
 
   // Create signup (wrap in a transaction for safety)
@@ -96,7 +96,7 @@ if ($action === 'create') {
     $pdo->commit();
   } catch (Throwable $e) {
     $pdo->rollBack();
-    http_response_code(500); exit('Failed to create signup.');
+    header('Location: /index.php?error='.rawurlencode('Failed to create signup.')); exit;
   }
 
   header('Location: /index.php'); exit;
