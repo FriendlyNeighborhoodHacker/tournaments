@@ -67,6 +67,29 @@ if ($__announcement !== '') { echo '<h2><strong>Announcement</strong></h2><div c
         echo '<p><strong>Judges (0):</strong> none</p>';
       }
     ?>
+    <?php
+      // Rides summary formatted like Judges
+      $members = Signups::membersWithRideForTournament($t['id']);
+      $has_names = []; $needs_names = []; $unspec_names = [];
+      foreach ($members as $mm) {
+        $nm = $mm['first_name'].' '.$mm['last_name'];
+        if ($mm['has_ride'] === null) {
+          $unspec_names[] = $nm;
+        } elseif ((int)$mm['has_ride'] === 1) {
+          $has_names[] = $nm;
+        } else {
+          $needs_names[] = $nm;
+        }
+      }
+      $cntHas = count($has_names);
+      $cntNeeds = count($needs_names);
+      $cntUnspec = count($unspec_names);
+      echo '<p><strong>Has ride ('.$cntHas.'):</strong> '.($cntHas ? h(implode(', ', $has_names)) : 'none').'</p>';
+      echo '<p><strong>Needs Ride ('.$cntNeeds.'):</strong> '.($cntNeeds ? h(implode(', ', $needs_names)) : 'none').'</p>';
+      if ($cntUnspec > 0) {
+        echo '<p><strong>Unspecified Ride ('.$cntUnspec.'):</strong> '.h(implode(', ', $unspec_names)).'</p>';
+      }
+    ?>
   </section>
 <?php endforeach; ?>
 <p class="small" style="margin-top: 1rem;">
