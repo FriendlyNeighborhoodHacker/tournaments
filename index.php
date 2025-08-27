@@ -136,16 +136,14 @@ if ($__announcement !== '') { echo '
         <input type="hidden" name="tournament_id" value="<?=h($t['id'])?>">
         <input type="hidden" name="ref" value="/index.php">
         <table class="list">
-          <thead><tr><th>Name</th><th>Ride</th></tr></thead>
+          <thead><tr><th>Name</th><th>Yes</th><th>No</th><th>Unspecified</th></tr></thead>
           <tbody>
           <?php foreach($members as $m): ?>
             <tr>
               <td><?=h($m['last_name'].', '.$m['first_name'])?></td>
-              <td>
-                <label class="inline"><input type="radio" name="ride[<?=$m['user_id']?>]" value="1" <?= ($m['has_ride']==='1'||$m['has_ride']===1)?'checked':'' ?>> Yes</label>
-                <label class="inline"><input type="radio" name="ride[<?=$m['user_id']?>]" value="0" <?= ($m['has_ride']==='0'||$m['has_ride']===0)?'checked':'' ?>> No</label>
-                <label class="inline"><input type="radio" name="ride[<?=$m['user_id']?>]" value="" <?= ($m['has_ride']===null)?'checked':'' ?>> Unspecified</label>
-              </td>
+              <td><input type="radio" name="ride[<?=$m['user_id']?>]" value="1" <?= ($m['has_ride']==='1'||$m['has_ride']===1)?'checked':'' ?>></td>
+              <td><input type="radio" name="ride[<?=$m['user_id']?>]" value="0" <?= ($m['has_ride']==='0'||$m['has_ride']===0)?'checked':'' ?>></td>
+              <td><input type="radio" name="ride[<?=$m['user_id']?>]" value="" <?= ($m['has_ride']===null)?'checked':'' ?>></td>
             </tr>
           <?php endforeach; ?>
           </tbody>
