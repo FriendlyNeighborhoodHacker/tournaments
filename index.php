@@ -215,12 +215,6 @@ if ($__announcement !== '') {
           <li><a href="#" onclick="document.getElementById('withdrawSubmit_<?=h($mine['id'])?>').click(); return false;">withdraw your team</a></li>
       <?php endif; ?>
 
-        <?php if ($u['is_admin']): ?>
-          <li><a href="#" onclick='openSignupModal(<?=json_encode([
-            "tournament_id"=>$t["id"],
-            "tournament_name"=>$t["name"]
-          ])?>); return false;'>Sign up another team</a></li>
-        <?php endif; ?> 
         </ul>
       <?php else: // ELSE MINE ?>
         <button class="primary" onclick='openSignupModal(<?=json_encode([
@@ -233,7 +227,17 @@ if ($__announcement !== '') {
           <p><strong>Admin Actions:</strong></p>
           <ul>
             <li><a href="#" onclick="openAdminRidesModal('ridesModal_<?=h($t['id'])?>'); return false;">See rides</a></li>
-      </ul>
+          <li><a href="#" onclick='openSignupModal(<?=json_encode([
+            "tournament_id"=>$t["id"],
+            "tournament_name"=>$t["name"]
+          ])?>); return false;'>
+          <?php if ($mine): ?>
+            Sign up another team
+          <?php else: ?>
+            Sign up a team
+          <?php endif;
+          </a></li>
+        </ul>
       <?php endif; ?>
 
 
