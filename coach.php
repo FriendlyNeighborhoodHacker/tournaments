@@ -39,13 +39,6 @@ if ($__announcement !== '') { echo '<h2><strong>Announcement</strong></h2><div c
                   <button class="danger">Delete</button>
                 </form>
                 <a class="button" href="/signup_edit.php?id=<?=h($r['id'])?>">Edit</a>
-              </td>
-            <?php endif; ?>
-          </tr>
-        <?php endforeach; ?>
-        </tbody>
-      </table>
-    <?php endif; ?>
     <?php if(current_user()['is_admin']): ?>
       <button type="button" onclick="openAdminRidesModal('ridesModal_<?=h($t['id'])?>')">See rides</button>
       <?php
@@ -56,6 +49,13 @@ if ($__announcement !== '') { echo '<h2><strong>Announcement</strong></h2><div c
         $ref = '/coach.php'.($showAll ? '?all=1' : '');
         include __DIR__.'/rides_modal.php';
       ?>
+    <?php endif; ?>
+              </td>
+            <?php endif; ?>
+          </tr>
+        <?php endforeach; ?>
+        </tbody>
+      </table>
     <?php endif; ?>
   </section>
 <?php endforeach; ?>
