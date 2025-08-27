@@ -99,7 +99,7 @@ if ($__announcement !== '') { echo '
           <input type="hidden" name="csrf" value="<?=h(csrf_token())?>">
           <input type="hidden" name="action" value="delete">
           <input type="hidden" name="signup_id" value="<?=h($mine['id'])?>">
-          <button class="danger" onclick="return confirm('Un-sign your team from this tournament?')">Un-sign Team</button>
+          <button class="danger" onclick="return confirm('Un-sign your team from this tournament?')">Withdraw Team</button>
         </form>
         <?php if ($u['is_admin']): ?>
           <button class="primary" onclick='openSignupModal(<?=json_encode([
