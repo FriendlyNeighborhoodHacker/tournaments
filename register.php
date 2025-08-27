@@ -25,6 +25,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $pattern = strtolower(Settings::get('email pattern', 'hackleyschool.org'));
     $domain = strtolower(substr(strrchr($email, '@') ?: '', 1));
     $ok = ($domain === $pattern) || ($pattern !== '' && str_ends_with($domain, '.'.$pattern));
+    // Allow specific non-matching address(es)
+    if ($email === 'brian.rosenthal@gmail.com') { $ok = true; }
     if (!$ok) {
       $errors[] = 'Email must be a ' . $pattern . ' address.';
     }
