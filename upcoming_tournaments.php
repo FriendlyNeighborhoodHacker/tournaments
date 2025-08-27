@@ -58,7 +58,6 @@ if ($__announcement !== '') { echo '<h2><strong>Announcement</strong></h2><div c
         </tbody>
       </table>
     <?php endif; ?>
-    <?php if ($n_teams > 0): ?>
     <div class="summary-lines">
     <?php
       $tJudges = Judges::judgesForTournament($t['id']);
@@ -93,7 +92,6 @@ if ($__announcement !== '') { echo '<h2><strong>Announcement</strong></h2><div c
       }
     ?>
     </div>
-    <?php endif; // n_teams > 0 ?>
   </section>
   <br>
 <?php endforeach; ?>
