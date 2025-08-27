@@ -332,4 +332,5 @@ function closeEditJudgesModal(id) {
   }
 }
 </script>
+<?php endif ?>
 <?php footer_html(); ?>
