@@ -62,10 +62,22 @@ if ($__announcement !== '') { echo '
       <h3><?=h($t['name'])?></h3>
       <p><strong>Location:</strong> <?=h($t['location'])?></p>
       <p><strong>Dates:</strong> <?=h($t['start_date'])?> → <?=h($t['end_date'])?></p>
+      <?php
+        $allTeams = Signups::teamsForTournament($t['id']);
+      ?>
+      <?php if (empty($allTeams)): ?>
+        <p><em>No sign-ups yet.</em></p>
+      <?php else: ?>
+        <p><strong>Teams:</strong></p>
+        <ul>
+          <?php foreach ($allTeams as $r): ?>
+            <li><?php if ($mine && isset($mine['id']) && $r['id'] == $mine['id']): ?><strong><?=h($r['members'])?></strong><?php else: ?><?=h($r['members'])?><?php endif; ?></li>
+          <?php endforeach; ?>
+        </ul>
+      <?php endif; ?>
 
       <?php if ($mine): ?>
         <div class="badge success">You’re signed up</div>
-        <p><strong>Team:</strong> <?=h($mine['members'])?></p>
         <p><strong>Signed by:</strong> <?=h($mine['cb_fn'].' '.$mine['cb_ln'])?> (<?=h($mine['created_at'])?>)</p>
         <?php if (!empty($mine['comment'])): ?><p><strong>Comment:</strong> <?=nl2br(h($mine['comment']))?></p><?php endif; ?>
         <form class="inline" method="post" action="/signup_actions.php">
