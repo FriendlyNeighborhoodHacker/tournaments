@@ -25,7 +25,7 @@ function header_html($title) {
   $cssVer = @filemtime(__DIR__.'/styles.css');
   if (!$cssVer) { $cssVer = date('Ymd'); }
   echo '<link rel="stylesheet" href="/styles.css?v='.h($cssVer).'">';
-  echo '</head><body><header><h1>'.h(APP_NAME).'</h1><nav>'.$nav.'</nav></header><main>';
+  echo '</head><body><header><h1><a href="/index.php">'.h(APP_NAME).'</a></h1><nav>'.$nav.'</nav></header><main>';
 }
 
 function footer_html() {
