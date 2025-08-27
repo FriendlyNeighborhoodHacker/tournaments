@@ -78,6 +78,20 @@ CREATE TABLE judges (
 CREATE INDEX idx_judges_sponsor_id ON judges(sponsor_id);
 CREATE INDEX idx_judges_name ON judges(last_name, first_name);
 
+-- Judges attached directly to a tournament (not tied to a signup)
+CREATE TABLE tournament_judges (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  tournament_id INT NOT NULL,
+  judge_id  INT NOT NULL,
+  CONSTRAINT fk_tj_tournament FOREIGN KEY (tournament_id) REFERENCES tournaments(id) ON DELETE CASCADE,
+  CONSTRAINT fk_tj_judge     FOREIGN KEY (judge_id)      REFERENCES judges(id)      ON DELETE CASCADE,
+  UNIQUE KEY uniq_tj (tournament_id, judge_id)
+) ENGINE=InnoDB;
+
+-- Helpful indexes for tournament_judges
+CREATE INDEX idx_tj_tournament_id ON tournament_judges(tournament_id);
+CREATE INDEX idx_tj_judge_id ON tournament_judges(judge_id);
+
 -- Judges attached to a team signup
 CREATE TABLE signup_judges (
   id INT AUTO_INCREMENT PRIMARY KEY,

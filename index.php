@@ -79,6 +79,7 @@ if ($__announcement !== '') {
       <?php
         $allTeams = Signups::teamsForTournament($t['id']);
         $judgesBySignup = Judges::judgesBySignupForTournament($t['id']);
+        $tournamentJudges = Judges::tournamentJudgesForTournament($t['id']);
         $allJudges = $u['is_admin'] ? Judges::listAll() : [];
       ?>
       <?php if (empty($allTeams)): ?>
@@ -119,6 +120,14 @@ if ($__announcement !== '') {
         </ul>
       <?php endif; ?>
 
+      <?php if (!empty($tournamentJudges)): ?>
+        <p><strong>Other Tournament Judges:</strong> <?= h(implode(', ', array_map(function($j){ return $j['first_name'].' '.$j['last_name']; }, $tournamentJudges))) ?></p>
+      <?php endif; ?>
+
+      <?php if ($u['is_admin']): ?>
+        <a href="#" class="small" onclick="openEditJudgesModal('tjModal_<?=h($t['id'])?>'); return false;">Manage tournament judges</a>
+      <?php endif; ?>
+
       <?php if ($u['is_admin']): ?>
         <?php foreach ($allTeams as $rr): 
           $sid = (int)$rr['id'];
@@ -153,6 +162,53 @@ if ($__announcement !== '') {
           </div>
         </div>
         <?php endforeach; ?>
+      <?php endif; ?>
+
+      <?php if ($u['is_admin']): 
+        $tjModalId = 'tjModal_'.$t['id'];
+      ?>
+      <div id="<?=h($tjModalId)?>" class="modal hidden" aria-hidden="true">
+        <div class="modal-content">
+          <button class="close" onclick="closeEditJudgesModal('<?=h($tjModalId)?>')">×</button>
+          <h3>Manage tournament judges — <?=h($t['name'])?></h3>
+          <?php if (empty($tournamentJudges)): ?>
+            <p class="small">No tournament-only judges yet.</p>
+          <?php else: ?>
+            <ul>
+              <?php foreach ($tournamentJudges as $j): ?>
+                <li><?=h($j['first_name'].' '.$j['last_name'])?>
+                  <form class="inline" method="post" action="/judge_actions.php" onsubmit="return confirm('Remove this tournament judge?')">
+                    <input type="hidden" name="csrf" value="<?=h(csrf_token())?>">
+                    <input type="hidden" name="action" value="tournament_remove">
+                    <input type="hidden" name="tournament_id" value="<?=h($t['id'])?>">
+                    <input type="hidden" name="judge_id" value="<?=h($j['id'])?>">
+                    <input type="hidden" name="ref" value="/index.php">
+                    <button class="button danger" style="padding:2px 6px;font-size:12px;">Remove</button>
+                  </form>
+                </li>
+              <?php endforeach; ?>
+            </ul>
+          <?php endif; ?>
+          <hr>
+          <form method="post" action="/judge_actions.php" class="stack">
+            <input type="hidden" name="csrf" value="<?=h(csrf_token())?>">
+            <input type="hidden" name="action" value="tournament_add">
+            <input type="hidden" name="tournament_id" value="<?=h($t['id'])?>">
+            <input type="hidden" name="ref" value="/index.php">
+            <label>Select judge to add
+              <select name="judge_id" required>
+                <?php foreach ($allJudges as $j): ?>
+                  <option value="<?=$j['id']?>"><?=h($j['last_name'].', '.$j['first_name'])?></option>
+                <?php endforeach; ?>
+              </select>
+            </label>
+            <div class="actions">
+              <button class="primary">Add judge</button>
+              <button type="button" onclick="closeEditJudgesModal('<?=h($tjModalId)?>')">Close</button>
+            </div>
+          </form>
+        </div>
+      </div>
       <?php endif; ?>
 
       <?php if (!$u['is_admin'] && $mine): 

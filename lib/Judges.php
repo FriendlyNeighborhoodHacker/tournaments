@@ -105,4 +105,48 @@ class Judges {
     $st->execute($ids);
     return $st->fetchAll();
   }
+
+  // Tournament-level judges (not tied to a specific signup)
+  public static function tournamentJudgesForTournament(int $tournamentId): array {
+    $sql = "SELECT DISTINCT j.id, j.first_name, j.last_name
+            FROM tournament_judges tj
+            JOIN judges j ON j.id = tj.judge_id
+            WHERE tj.tournament_id = ?
+            ORDER BY j.last_name, j.first_name";
+    $st = pdo()->prepare($sql);
+    $st->execute([$tournamentId]);
+    return $st->fetchAll();
+  }
+
+  public static function attachTournamentJudge(int $tournamentId, int $judgeId): bool {
+    $st = pdo()->prepare("INSERT IGNORE INTO tournament_judges (tournament_id, judge_id) VALUES (?,?)");
+    return $st->execute([$tournamentId, $judgeId]);
+  }
+
+  public static function detachTournamentJudge(int $tournamentId, int $judgeId): bool {
+    $st = pdo()->prepare("DELETE FROM tournament_judges WHERE tournament_id=? AND judge_id=?");
+    return $st->execute([$tournamentId, $judgeId]);
+  }
+
+  // Combined judges for a tournament (union of team-attached and tournament-attached)
+  public static function judgesCombinedForTournament(int $tournamentId): array {
+    $sql = "
+      SELECT DISTINCT j.id, j.first_name, j.last_name
+      FROM (
+        SELECT sj.judge_id AS jid
+        FROM signup_judges sj
+        JOIN signups s ON s.id = sj.signup_id
+        WHERE s.tournament_id = ?
+        UNION
+        SELECT tj.judge_id AS jid
+        FROM tournament_judges tj
+        WHERE tj.tournament_id = ?
+      ) x
+      JOIN judges j ON j.id = x.jid
+      ORDER BY j.last_name, j.first_name
+    ";
+    $st = pdo()->prepare($sql);
+    $st->execute([$tournamentId, $tournamentId]);
+    return $st->fetchAll();
+  }
 }
