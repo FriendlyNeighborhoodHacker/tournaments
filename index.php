@@ -199,7 +199,7 @@ if ($__announcement !== '') {
           <p><strong>You’re signed up.</strong></p>
         <ul>
         <?php if (!empty($mine['comment'])): ?><li><strong>Comment:</strong> <?=nl2br(h($mine['comment']))?></li><?php endif; ?>
-          <li>Ride status:
+          <li>Your ride status:
         <?php
           $rideState = $my_has_ride[$tournament_id] ?? null;
           if ($rideState === null) : // IF RIDE NOT SET
