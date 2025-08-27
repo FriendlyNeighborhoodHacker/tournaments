@@ -92,6 +92,7 @@ if ($__announcement !== '') { echo '<h2><strong>Announcement</strong></h2><div c
     ?>
     </div>
   </section>
+  <br>
 <?php endforeach; ?>
 <p class="small" style="margin-top: 1rem;">
   <?php if ($showAll): ?>
