@@ -190,7 +190,7 @@ if ($__announcement !== '') {
       <?php endif; ?>
 
       <?php if ($mine): // IF MINE?>
-        <div class="badge success">You’re signed up</div><br>
+        <div class="badge success">You’re signed up</div> Manage:
         <?php if (!empty($mine['comment'])): ?><p><strong>Comment:</strong> <?=nl2br(h($mine['comment']))?></p><?php endif; ?>
         <?php
           $rideState = $my_has_ride[$tournament_id] ?? null;
