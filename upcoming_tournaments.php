@@ -9,7 +9,12 @@ $showAll = !empty($_GET['all']);
 $tournaments = $showAll ? Tournaments::allAsc() : Tournaments::upcoming();
 header_html('Upcoming Tournaments');
 $__announcement = Settings::get('announcement', '');
-if ($__announcement !== '') { echo '<h2><strong>Announcement</strong></h2><div class="card" style="background:#fff3cd;border:1px solid #ffeeba;"><p>'.nl2br(h($__announcement)).'</p></div>'; }
+if ($__announcement !== '') { 
+  echo '
+    <div class="card" style="background:#fff3cd;border:1px solid #ffeeba;">
+    <h2><strong>Announcement</strong></h2>
+    <p>' . nl2br(h($__announcement)) . '</p></div>'; 
+}
 ?>
 <h2><?= $showAll ? 'All tournaments' : 'Upcoming tournaments' ?></h2>
 <?php foreach($tournaments as $t): ?>
