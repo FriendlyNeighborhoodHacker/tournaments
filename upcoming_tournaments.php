@@ -16,7 +16,7 @@ if ($__announcement !== '') { echo '<h2><strong>Announcement</strong></h2><div c
   <section class="coach-section">
     <h3><?=h($t['name'])?> — <?=h($t['start_date'])?> → <?=h($t['end_date'])?> (<?=h($t['location'])?>)</h3>
     <?php
-      $n_teams = count($rows);
+  
       $rows = Signups::teamsForTournament($t['id']);
     ?>
     <?php if (empty($rows)): ?>
