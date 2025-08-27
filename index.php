@@ -217,4 +217,5 @@ function closeAdminRidesModal(id) {
   }
 }
 </script>
+<?php endif; ?>
 <?php footer_html(); ?>
