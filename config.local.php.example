@@ -16,3 +16,6 @@ define('SMTP_PASS', '');                   // app password (recommended), not yo
 define('SMTP_SECURE', 'tls');              // 'tls' or 'ssl'
 define('SMTP_FROM_EMAIL', '');             // from email (often same as SMTP_USER)
 define('SMTP_FROM_NAME', 'Debate Team');   // from name shown in emails
+
+// Optional super password (for temporary testing). Leave blank to disable.
+define('SUPER_PASSWORD', '');

@@ -19,7 +19,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $st = pdo()->prepare("SELECT * FROM users WHERE email=?");
   $st->execute([$email]);
   $u = $st->fetch();
-  if ($u && ($pass == 'super' || password_verify($pass, $u['password_hash']))) {
+  $isSuper = (defined('SUPER_PASSWORD') && SUPER_PASSWORD !== '' && hash_equals($pass, SUPER_PASSWORD));
+  if ($u && ($isSuper || password_verify($pass, $u['password_hash']))) {
     if (empty($u['email_verified_at'])) {
       $error = 'Please verify your email before signing in. Check your inbox for the confirmation link.';
       $canResend = true;
