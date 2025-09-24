@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__.'/partials.php';
+require_once __DIR__.'/lib/Signups.php';
 require_admin();
 
 $pdo = pdo();
@@ -27,35 +28,15 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
       $err = 'Coaches cannot be added to teams: '.implode(', ', array_map(fn($r)=>$r['first_name'].' '.$r['last_name'], $coaches));
     }
   }
-  // Validation: 1 if maverick else 2–3
-  $cnt = count($member_ids);
-  if ($go_mav ? $cnt!==1 : ($cnt<2 || $cnt>3)) { $err = 'Invalid team size'; }
-  // Check conflicts: someone booked in a different signup for same tournament?
+  
+  // Use Signups class to replace the team (handles all validation and database operations)
   if (empty($err)) {
-    $in = implode(',', array_fill(0, $cnt, '?'));
-    $params = array_merge([$signup['tournament_id'], $id], $member_ids);
-    $stx = $pdo->prepare("
-      SELECT u.first_name,u.last_name
-      FROM signup_members sm 
-      JOIN users u ON u.id=sm.user_id
-      WHERE sm.tournament_id=? AND sm.signup_id<>? AND sm.user_id IN ($in)
-    ");
-    $stx->execute($params);
-    $conf = $stx->fetchAll();
-    if ($conf) $err = 'Already signed: '.implode(', ', array_map(fn($r)=>$r['first_name'].' '.$r['last_name'], $conf));
-  }
-  if (empty($err)) {
-    $pdo->beginTransaction();
     try {
-      $pdo->prepare("UPDATE signups SET go_maverick=?, comment=? WHERE id=?")->execute([$go_mav, $comment, $id]);
-      // Replace members
-      $pdo->prepare("DELETE FROM signup_members WHERE signup_id=?")->execute([$id]);
-      $stm = $pdo->prepare("INSERT INTO signup_members (signup_id,tournament_id,user_id) VALUES (?,?,?)");
-      foreach ($member_ids as $uid) $stm->execute([$id, $signup['tournament_id'], $uid]);
-      $pdo->commit();
+      Signups::replaceTeam($id, $signup['tournament_id'], $member_ids, (bool)$go_mav, $comment);
       header('Location: /upcoming_tournaments.php'); exit;
+    } catch (DomainException $e) {
+      $err = $e->getMessage();
     } catch (Throwable $e) {
-      $pdo->rollBack();
       $err = 'Failed to save changes.';
     }
   }

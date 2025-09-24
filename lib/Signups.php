@@ -104,10 +104,32 @@ ORDER BY s.created_at ASC
     $memberIds = array_values(array_unique(array_map('intval', $memberIds)));
     $count = count($memberIds);
 
+    // Get tournament's team size maximum
+    $st = pdo()->prepare("SELECT team_size_max FROM tournaments WHERE id = ?");
+    $st->execute([$tournamentId]);
+    $tournament = $st->fetch();
+    if (!$tournament) {
+      throw new DomainException('Tournament not found.');
+    }
+    $teamSizeMax = $tournament['team_size_max'];
+
     if ($goMaverick) {
       if ($count !== 1) throw new DomainException('Maverick signup must be exactly 1 person.');
     } else {
-      if ($count < 2 || $count > 3) throw new DomainException('Team signups must be 2 or 3 people total.');
+      // Apply tournament-specific team size limits
+      if ($teamSizeMax !== null) {
+        // Tournament has a specific team size maximum
+        if ($count < 2 || $count > $teamSizeMax) {
+          if ($teamSizeMax == 2) {
+            throw new DomainException("Team signups must be exactly 2 people for this tournament.");
+          } else {
+            throw new DomainException("Team signups must be 2 to {$teamSizeMax} people total for this tournament.");
+          }
+        }
+      } else {
+        // Tournament has no specific limit, use default behavior
+        if ($count < 2 || $count > 3) throw new DomainException('Team signups must be 2 or 3 people total.');
+      }
     }
 
     // Check conflicts
@@ -152,8 +174,33 @@ ORDER BY s.created_at ASC
   public static function replaceTeam(int $signupId, int $tournamentId, array $memberIds, bool $goMaverick, string $comment): bool {
     $memberIds = array_values(array_unique(array_map('intval', $memberIds)));
     $cnt = count($memberIds);
-    if ($goMaverick ? $cnt !== 1 : ($cnt < 2 || $cnt > 3)) {
-      throw new DomainException('Invalid team size');
+    
+    // Get tournament's team size maximum
+    $st = pdo()->prepare("SELECT team_size_max FROM tournaments WHERE id = ?");
+    $st->execute([$tournamentId]);
+    $tournament = $st->fetch();
+    if (!$tournament) {
+      throw new DomainException('Tournament not found.');
+    }
+    $teamSizeMax = $tournament['team_size_max'];
+
+    if ($goMaverick) {
+      if ($cnt !== 1) throw new DomainException('Maverick signup must be exactly 1 person.');
+    } else {
+      // Apply tournament-specific team size limits
+      if ($teamSizeMax !== null) {
+        // Tournament has a specific team size maximum
+        if ($cnt < 2 || $cnt > $teamSizeMax) {
+          if ($teamSizeMax == 2) {
+            throw new DomainException("Team signups must be exactly 2 people for this tournament.");
+          } else {
+            throw new DomainException("Team signups must be 2 to {$teamSizeMax} people total for this tournament.");
+          }
+        }
+      } else {
+        // Tournament has no specific limit, use default behavior
+        if ($cnt < 2 || $cnt > 3) throw new DomainException('Team signups must be 2 or 3 people total.');
+      }
     }
 
     // Conflicts excluding current signup

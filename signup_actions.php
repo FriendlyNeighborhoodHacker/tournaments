@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__.'/auth.php';
+require_once __DIR__.'/lib/Signups.php';
 require_login();
 require_csrf();
 
@@ -63,39 +64,12 @@ if ($action === 'create') {
     }
   }
 
-  // Validation
-  $count = count($member_ids);
-  if ($go_maverick) {
-    if ($count !== 1) { header('Location: /index.php?error='.rawurlencode('Maverick signup must be exactly 1 person.')); exit; }
-  } else {
-    if ($count < 2 || $count > 3) { header('Location: /index.php?error='.rawurlencode('Team signups must be 2 or 3 people total.')); exit; }
-  }
-
-  // Check conflicts: any member already signed up for this tournament?
-  $in = implode(',', array_fill(0, $count, '?'));
-  $params = array_merge([$tournament_id], $member_ids);
-  $st = $pdo->prepare("SELECT u.first_name, u.last_name FROM signup_members sm JOIN users u ON u.id=sm.user_id WHERE sm.tournament_id=? AND sm.user_id IN ($in)");
-  $st->execute($params);
-  $conf = $st->fetchAll();
-  if ($conf) {
-    $names = array_map(fn($r)=>$r['first_name'].' '.$r['last_name'], $conf);
-    $__err = 'Already signed up: '.implode(', ', $names);
-    header('Location: /index.php?error='.rawurlencode($__err)); exit;
-  }
-
-  // Create signup (wrap in a transaction for safety)
-  $pdo->beginTransaction();
+  // Use Signups class to create the team (handles all validation and database operations)
   try {
-    $st = $pdo->prepare("INSERT INTO signups (tournament_id, created_by_user_id, go_maverick, comment) VALUES (?,?,?,?)");
-    $st->execute([$tournament_id, $u['id'], $go_maverick, $comment]);
-    $signup_id = (int)$pdo->lastInsertId();
-
-    $stm = $pdo->prepare("INSERT INTO signup_members (signup_id, tournament_id, user_id) VALUES (?,?,?)");
-    foreach ($member_ids as $uid) $stm->execute([$signup_id, $tournament_id, $uid]);
-
-    $pdo->commit();
+    Signups::createTeam($tournament_id, $u['id'], $member_ids, (bool)$go_maverick, $comment);
+  } catch (DomainException $e) {
+    header('Location: /index.php?error='.rawurlencode($e->getMessage())); exit;
   } catch (Throwable $e) {
-    $pdo->rollBack();
     header('Location: /index.php?error='.rawurlencode('Failed to create signup.')); exit;
   }
 
@@ -104,13 +78,15 @@ if ($action === 'create') {
 
 if ($action === 'delete') {
   $signup_id = (int)($_POST['signup_id'] ?? 0);
-  // Authorization: admin OR member of signup
-  $st = $pdo->prepare("SELECT s.*, EXISTS(SELECT 1 FROM signup_members sm WHERE sm.signup_id=s.id AND sm.user_id=?) AS am_member FROM signups s WHERE s.id=?");
-  $st->execute([$u['id'], $signup_id]);
-  $s = $st->fetch();
-  if (!$s) { http_response_code(404); exit('Not found'); }
-  if (!$u['is_admin'] && !$s['am_member']) { http_response_code(403); exit('Not allowed'); }
-  $pdo->prepare("DELETE FROM signups WHERE id=?")->execute([$signup_id]); // cascades
+  // Use Signups class to delete the team (handles authorization and database operations)
+  try {
+    $success = Signups::deleteTeamIfAllowed($signup_id, $u['id'], (bool)$u['is_admin']);
+    if (!$success) {
+      http_response_code(404); exit('Not found or not allowed');
+    }
+  } catch (Throwable $e) {
+    http_response_code(500); exit('Failed to delete signup');
+  }
   header('Location: '.($_SERVER['HTTP_REFERER'] ?? '/index.php')); exit;
 }
 

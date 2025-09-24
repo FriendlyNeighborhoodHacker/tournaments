@@ -43,6 +43,17 @@ class TournamentManagement {
     return $i;
   }
 
+  private static function parseTeamSizeMaxOrNull($val): ?int {
+    if ($val === null) return null;
+    $s = trim((string)$val);
+    if ($s === '') return null;
+    $i = (int)$s;
+    if ($i < 1) {
+      throw new InvalidArgumentException('Team size maximum must be at least 1 when provided.');
+    }
+    return $i;
+  }
+
   // Placeholder for future activity logging
   private static function log(string $action, ?int $id, array $details = []): void {
     // no-op for now; implement later
@@ -54,6 +65,7 @@ class TournamentManagement {
     $start = self::parseDate($data['start_date'] ?? null);
     $end = self::parseDate($data['end_date'] ?? null);
     $maxTeams = self::parsePositiveIntOrNull($data['max_teams'] ?? null);
+    $teamSizeMax = self::parseTeamSizeMaxOrNull($data['team_size_max'] ?? null);
     $deadline = self::parseDate($data['signup_deadline'] ?? null);
 
     if ($name === '' || $location === '' || $start === null || $end === null) {
@@ -63,8 +75,8 @@ class TournamentManagement {
       throw new InvalidArgumentException('Start date must be on or before end date.');
     }
 
-    $st = self::pdo()->prepare("INSERT INTO tournaments (name,location,start_date,end_date,max_teams,signup_deadline) VALUES (?,?,?,?,?,?)");
-    $st->execute([$name, $location, $start, $end, $maxTeams, $deadline]);
+    $st = self::pdo()->prepare("INSERT INTO tournaments (name,location,start_date,end_date,max_teams,team_size_max,signup_deadline) VALUES (?,?,?,?,?,?,?)");
+    $st->execute([$name, $location, $start, $end, $maxTeams, $teamSizeMax, $deadline]);
     $id = (int)self::pdo()->lastInsertId();
     self::log('tournament.create', $id, ['name' => $name]);
     return $id;
@@ -76,6 +88,7 @@ class TournamentManagement {
     $start = self::parseDate($data['start_date'] ?? null);
     $end = self::parseDate($data['end_date'] ?? null);
     $maxTeams = self::parsePositiveIntOrNull($data['max_teams'] ?? null);
+    $teamSizeMax = self::parseTeamSizeMaxOrNull($data['team_size_max'] ?? null);
     $deadline = self::parseDate($data['signup_deadline'] ?? null);
 
     if ($name === '' || $location === '' || $start === null || $end === null) {
@@ -85,8 +98,8 @@ class TournamentManagement {
       throw new InvalidArgumentException('Start date must be on or before end date.');
     }
 
-    $st = self::pdo()->prepare("UPDATE tournaments SET name=?, location=?, start_date=?, end_date=?, max_teams=?, signup_deadline=? WHERE id=?");
-    $ok = $st->execute([$name, $location, $start, $end, $maxTeams, $deadline, $id]);
+    $st = self::pdo()->prepare("UPDATE tournaments SET name=?, location=?, start_date=?, end_date=?, max_teams=?, team_size_max=?, signup_deadline=? WHERE id=?");
+    $ok = $st->execute([$name, $location, $start, $end, $maxTeams, $teamSizeMax, $deadline, $id]);
     if ($ok) self::log('tournament.update', $id, ['name' => $name]);
     return $ok;
   }

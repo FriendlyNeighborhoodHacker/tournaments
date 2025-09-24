@@ -32,6 +32,7 @@ CREATE TABLE tournaments (
   start_date DATE NOT NULL,
   end_date   DATE NOT NULL,
   max_teams INT DEFAULT NULL,
+  team_size_max INT DEFAULT NULL,
   signup_deadline DATE DEFAULT NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   INDEX (start_date)
