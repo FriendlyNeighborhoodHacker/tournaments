@@ -120,7 +120,11 @@ ORDER BY s.created_at ASC
       if ($teamSizeMax !== null) {
         // Tournament has a specific team size maximum
         if ($count < 2 || $count > $teamSizeMax) {
-          throw new DomainException("Team signups must be 2 to {$teamSizeMax} people total for this tournament.");
+          if ($teamSizeMax == 2) {
+            throw new DomainException("Team signups must be exactly 2 people for this tournament.");
+          } else {
+            throw new DomainException("Team signups must be 2 to {$teamSizeMax} people total for this tournament.");
+          }
         }
       } else {
         // Tournament has no specific limit, use default behavior
@@ -187,7 +191,11 @@ ORDER BY s.created_at ASC
       if ($teamSizeMax !== null) {
         // Tournament has a specific team size maximum
         if ($cnt < 2 || $cnt > $teamSizeMax) {
-          throw new DomainException("Team signups must be 2 to {$teamSizeMax} people total for this tournament.");
+          if ($teamSizeMax == 2) {
+            throw new DomainException("Team signups must be exactly 2 people for this tournament.");
+          } else {
+            throw new DomainException("Team signups must be 2 to {$teamSizeMax} people total for this tournament.");
+          }
         }
       } else {
         // Tournament has no specific limit, use default behavior
