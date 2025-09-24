@@ -51,6 +51,7 @@ header_html('Tournaments');
       <label>Start date<input type="date" name="start_date" required></label>
       <label>End date<input type="date" name="end_date" required></label>
       <label>Max teams (leave blank for unlimited)<input type="number" name="max_teams" min="1" inputmode="numeric"></label>
+      <label>Team size maximum (leave blank for no limit)<input type="number" name="team_size_max" min="1" inputmode="numeric"></label>
       <label>Signup deadline (optional)<input type="date" name="signup_deadline"></label>
       <button name="create" class="primary">Add</button>
     </form>
@@ -78,6 +79,7 @@ header_html('Tournaments');
                 <label>Start<input type="date" name="start_date" value="<?=$r['start_date']?>" required></label>
                 <label>End<input type="date" name="end_date" value="<?=$r['end_date']?>" required></label>
                 <label>Max teams (blank = unlimited)<input type="number" name="max_teams" min="1" value="<?=h($r['max_teams'])?>"></label>
+                <label>Team size maximum (blank = no limit)<input type="number" name="team_size_max" min="1" value="<?=h($r['team_size_max'])?>"></label>
                 <label>Signup deadline<input type="date" name="signup_deadline" value="<?=$r['signup_deadline']?>"></label>
                 <div class="actions">
                   <button name="update" class="primary">Save</button>
