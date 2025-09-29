@@ -65,7 +65,7 @@ header_html('Tournaments');
       <?php foreach($rows as $r): ?>
         <tr>
           <td><?=h($r['name'])?></td>
-          <td><?=h($r['start_date'])?> → <?=h($r['end_date'])?></td>
+          <td><?=Settings::formatDateRange($r['start_date'], $r['end_date'])?></td>
           <td><?=h($r['location'])?></td>
           <?php if($isAdmin): ?>
           <td>

@@ -18,7 +18,7 @@ header_html('Previous Tournaments');
     <div class="card">
       <h3><?=h($t['name'])?></h3>
       <p><strong>Location:</strong> <?=h($t['location'])?></p>
-      <p><strong>Dates:</strong> <?=h($t['start_date'])?> → <?=h($t['end_date'])?></p>
+      <p><strong>Dates:</strong> <?=Settings::formatDateRange($t['start_date'], $t['end_date'])?></p>
       <?php
         $allTeams = Signups::teamsForTournament($t['id']);
       ?>

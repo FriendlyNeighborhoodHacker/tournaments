@@ -49,4 +49,14 @@ class Settings {
       return $sqlDateTime;
     }
   }
+
+  // Formats a date range - if start and end are the same, shows single date; otherwise shows range with arrow
+  public static function formatDateRange(?string $startDate, ?string $endDate): string {
+    if (!$startDate || !$endDate) return '';
+    if ($startDate === $endDate) {
+      return h($startDate);
+    } else {
+      return h($startDate) . ' → ' . h($endDate);
+    }
+  }
 }
