@@ -19,7 +19,7 @@ if ($__announcement !== '') {
 <h2><?= $showAll ? 'All tournaments' : 'Upcoming tournaments' ?></h2>
 <?php foreach($tournaments as $t): ?>
   <section class="coach-section">
-    <h3><?=h($t['name'])?> — <?=h($t['start_date'])?> → <?=h($t['end_date'])?> (<?=h($t['location'])?>)</h3>
+    <h3><?=h($t['name'])?> — <?=Settings::formatDateRange($t['start_date'], $t['end_date'])?> (<?=h($t['location'])?>)</h3>
     <?php
 
       $rows = Signups::teamsForTournament($t['id']);
