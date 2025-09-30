@@ -3,6 +3,7 @@ if (file_exists(__DIR__ . '/config.local.php')) {
   require(__DIR__ . '/config.local.php');
 } else {
   echo 'Needs config.local.php file';
+  exit();
 }
 
 session_start();
