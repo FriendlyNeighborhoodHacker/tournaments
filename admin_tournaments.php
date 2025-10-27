@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__.'/partials.php';
+require_once __DIR__.'/settings.php';
 require_admin();
 require_once __DIR__.'/lib/TournamentManagement.php';
 $u = current_user();

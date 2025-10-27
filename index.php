@@ -394,12 +394,26 @@ if ($__announcement !== '') {
       <input type="hidden" name="csrf" value="<?=h(csrf_token())?>">
       <input type="hidden" name="action" value="create">
       <input type="hidden" name="tournament_id" id="m_tournament_id">
-      <label><input type="checkbox" id="m_go_maverick" name="go_maverick" value="1" onchange="toggleMaverick()"> Go Maverick (solo)</label>
-      <div id="partnerWrap">
-        <label>Choose partner(s) (1–2 other people)</label>
-        <div id="m_partners_box" class="partners-box" style="max-height:220px; overflow:auto; border:1px solid #e8e8ef; border-radius:8px; padding:8px;"></div>
-        <small class="small" id="partnersHelp">You’ll be included automatically; choose 1–2 partners (2–3 total).</small>
+      <input type="hidden" id="m_team_size_max" value="">
+      
+      <p  id="partnersHelp" style="margin:8px 0 16px;color:#555;"></p>
+      
+      <div id="teamSelectionWrap">
+        <label>Search for team members
+          <input type="text" id="m_search_input" placeholder="Type to search..." autocomplete="off">
+        </label>
+        <div id="m_search_results" class="search-results hidden"></div>
+        
+        <div id="m_selected_members" class="selected-members">
+          <div id="m_members_list"></div>
+          <small class="small" id="membersCount"></small>
+        </div>
       </div>
+      
+      <div id="maverickWrap" class="hidden">
+        <label><input type="checkbox" id="m_go_maverick" name="go_maverick" value="1"> Go Maverick (I want to compete solo)</label>
+      </div>
+      
       <label>Comment (optional)
         <textarea name="comment" rows="3" maxlength="500"></textarea>
       </label>
@@ -434,7 +448,8 @@ if ($__announcement !== '') {
 window.APP = {
   currentUserId: <?=json_encode($u['id'])?>,
   isAdmin: <?=json_encode((bool)$u['is_admin'])?>,
-  roster: <?=json_encode($roster)?>
+  roster: <?=json_encode($roster)?>,
+  tournaments_by_id: <?=json_encode($tournaments_by_id)?>
 };
 
 function openRideModal(tournamentId) {

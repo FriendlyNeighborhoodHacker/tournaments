@@ -34,3 +34,15 @@ input[type=checkbox],input[type=radio]{width:auto;height:auto;padding:0;border:0
 .summary-lines p{margin:2px 0}
 header h1 a{color:#fff;text-decoration:none}
 header h1 a:hover,header h1 a:focus,header h1 a:active,header h1 a:visited{color:#fff;text-decoration:none}
+.search-results{position:relative;background:#fff;border:1px solid #d9d9e3;border-radius:8px;margin-top:4px;max-height:240px;overflow-y:auto;box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.search-result-item{padding:10px 12px;cursor:pointer;border-bottom:1px solid #e8e8ef}
+.search-result-item:last-child{border-bottom:none}
+.search-result-item:hover{background:#f6f7fb}
+.search-result-item.no-results{cursor:default;color:#666;font-style:italic}
+.search-result-item.no-results:hover{background:#fff}
+.selected-members{margin:12px 0}
+#m_members_list{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;min-height:40px}
+.member-chip{display:inline-flex;align-items:center;gap:6px;background:#e6f2ff;border:1px solid #b3d9ff;border-radius:20px;padding:6px 8px 6px 12px;font-size:14px}
+.member-chip .remove-member{background:#2563eb;color:#fff;border:none;border-radius:50%;width:20px;height:20px;line-height:18px;font-size:16px;padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.member-chip .remove-member:hover{background:#1e40af}
+#m_search_input:disabled{background:#f3f4f6;cursor:not-allowed}
