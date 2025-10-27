@@ -396,6 +396,8 @@ if ($__announcement !== '') {
       <input type="hidden" name="tournament_id" id="m_tournament_id">
       <input type="hidden" id="m_team_size_max" value="">
       
+      <p class="small" id="partnersHelp" style="margin:8px 0 16px;color:#555;"></p>
+      
       <div id="teamSelectionWrap">
         <label>Search for team members
           <input type="text" id="m_search_input" placeholder="Type to search..." autocomplete="off">
@@ -406,7 +408,6 @@ if ($__announcement !== '') {
           <div id="m_members_list"></div>
           <small class="small" id="membersCount"></small>
         </div>
-        <small class="small" id="partnersHelp"></small>
       </div>
       
       <div id="maverickWrap" class="hidden">
