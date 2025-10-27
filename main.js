@@ -100,21 +100,27 @@ function updateHelperText() {
   const currentCount = signupState.selectedMembers.length;
   
   if (isAdmin) {
-    const remaining = maxSize - currentCount;
-    if (remaining > 0) {
-      helpEl.textContent = `Select ${maxSize === 2 ? 'exactly 1 more' : `1–${remaining} more`} team member${remaining !== 1 ? 's' : ''} (${maxSize} total).`;
+    if (currentCount === 0) {
+      helpEl.textContent = `You are an admin, you can add teams that you are not on. If you are part of a team that you are adding, make sure to add yourself.`;
     } else {
-      helpEl.textContent = `Team is full (${maxSize} members max).`;
+      const remaining = maxSize - currentCount;
+      if (remaining > 0) {
+        helpEl.textContent = `Selected ${currentCount} member${currentCount !== 1 ? 's' : ''}. Can add ${remaining} more (${maxSize} total max).`;
+      } else {
+        helpEl.textContent = `Team is full (${maxSize} members max).`;
+      }
     }
   } else {
-    const totalWithUser = currentCount + 1;
-    const remaining = maxSize - totalWithUser;
-    if (totalWithUser < 2) {
-      helpEl.textContent = `You'll be included automatically. Select at least 1 partner (${maxSize} total max).`;
-    } else if (remaining > 0) {
-      helpEl.textContent = `You plus ${currentCount} partner${currentCount !== 1 ? 's' : ''}. Can add ${remaining} more.`;
+    if (currentCount === 0) {
+      helpEl.textContent = `Select the team members you want to go with. (You are automatically part of the team.)`;
     } else {
-      helpEl.textContent = `Team is full (you plus ${currentCount} partners = ${maxSize} total).`;
+      const totalWithUser = currentCount + 1;
+      const remaining = maxSize - totalWithUser;
+      if (remaining > 0) {
+        helpEl.textContent = `You plus ${currentCount} partner${currentCount !== 1 ? 's' : ''}. Can add ${remaining} more (${maxSize} total max).`;
+      } else {
+        helpEl.textContent = `Team is full (you plus ${currentCount} partners = ${maxSize} total).`;
+      }
     }
   }
 }
