@@ -396,7 +396,7 @@ if ($__announcement !== '') {
       <input type="hidden" name="tournament_id" id="m_tournament_id">
       <input type="hidden" id="m_team_size_max" value="">
       
-      <p class="small" id="partnersHelp" style="margin:8px 0 16px;color:#555;"></p>
+      <p  id="partnersHelp" style="margin:8px 0 16px;color:#555;"></p>
       
       <div id="teamSelectionWrap">
         <label>Search for team members
