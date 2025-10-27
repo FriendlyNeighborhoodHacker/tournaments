@@ -6,6 +6,35 @@ if (file_exists(__DIR__ . '/config.local.php')) {
   exit();
 }
 
+// Simple fatal error handler - prints errors to screen in addition to normal logging
+function simple_fatal_error_handler() {
+  $error = error_get_last();
+  
+  if ($error !== null && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR])) {
+    $error_types = [
+      E_ERROR => 'Fatal Error',
+      E_PARSE => 'Parse Error',
+      E_CORE_ERROR => 'Core Error',
+      E_COMPILE_ERROR => 'Compile Error',
+    ];
+    
+    $error_type = $error_types[$error['type']] ?? 'Fatal Error';
+    
+    // Print error to browser
+    echo "\n\n";
+    echo "=================================================\n";
+    echo strtoupper($error_type) . "\n";
+    echo "=================================================\n";
+    echo "Message: " . $error['message'] . "\n";
+    echo "File:    " . $error['file'] . "\n";
+    echo "Line:    " . $error['line'] . "\n";
+    echo "=================================================\n";
+  }
+}
+
+// Register shutdown function to catch fatal errors
+register_shutdown_function('simple_fatal_error_handler');
+
 session_start();
 
 function pdo() {
