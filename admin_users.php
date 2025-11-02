@@ -55,9 +55,15 @@ header_html('Manage Users');
   </div>
   <div class="card">
     <h3>Roster</h3>
+    <div style="margin-bottom:16px;">
+      <label>Search users
+        <input type="text" id="userSearchInput" placeholder="Search by name, email, or phone..." autocomplete="off">
+      </label>
+      <p class="small" id="userSearchCount" style="margin:4px 0 0 0;color:#555;"></p>
+    </div>
     <table class="list">
       <thead><tr><th>Name</th><th>Email / Phone</th><th>Roles</th><th>Actions</th></tr></thead>
-      <tbody>
+      <tbody id="userTableBody">
       <?php foreach($rows as $r): ?>
         <tr>
           <td><?=h($r['first_name'].' '.$r['last_name'])?></td>
@@ -97,5 +103,80 @@ function toggleCreateUser() {
   f.style.display = opening ? 'block' : 'none';
   if (btn) btn.textContent = opening ? 'Hide Create User Form' : 'Create New User';
 }
+
+// User search functionality
+let userSearchTimeout = null;
+const totalUsers = document.querySelectorAll('#userTableBody tr').length;
+
+function updateUserSearchCount(visibleCount) {
+  const countEl = document.getElementById('userSearchCount');
+  if (countEl) {
+    if (visibleCount === totalUsers) {
+      countEl.textContent = `Showing all ${totalUsers} users`;
+    } else {
+      countEl.textContent = `Showing ${visibleCount} of ${totalUsers} users`;
+    }
+  }
+}
+
+function filterUsers(query) {
+  const rows = document.querySelectorAll('#userTableBody tr');
+  
+  if (!query || query.trim() === '') {
+    // Show all rows
+    rows.forEach(row => row.style.display = '');
+    updateUserSearchCount(totalUsers);
+    return;
+  }
+  
+  // Tokenize the search query (split by spaces)
+  const tokens = query.toLowerCase().trim().split(/\s+/).filter(t => t.length > 0);
+  
+  let visibleCount = 0;
+  rows.forEach(row => {
+    // Get all text content from the row (name, email, phone, roles)
+    const cells = row.querySelectorAll('td');
+    let rowText = '';
+    // Only search first 3 cells (name, email/phone, roles - not the actions column)
+    for (let i = 0; i < Math.min(3, cells.length); i++) {
+      rowText += cells[i].textContent + ' ';
+    }
+    rowText = rowText.toLowerCase();
+    
+    // Check if all tokens match
+    const matches = tokens.every(token => rowText.includes(token));
+    
+    if (matches) {
+      row.style.display = '';
+      visibleCount++;
+    } else {
+      row.style.display = 'none';
+    }
+  });
+  
+  updateUserSearchCount(visibleCount);
+}
+
+// Set up search input listener
+document.addEventListener('DOMContentLoaded', () => {
+  const searchInput = document.getElementById('userSearchInput');
+  if (searchInput) {
+    // Initialize count
+    updateUserSearchCount(totalUsers);
+    
+    searchInput.addEventListener('input', (e) => {
+      // Clear existing timeout
+      if (userSearchTimeout) {
+        clearTimeout(userSearchTimeout);
+      }
+      
+      // Set new timeout for debounced search (300ms)
+      const query = e.target.value;
+      userSearchTimeout = setTimeout(() => {
+        filterUsers(query);
+      }, 300);
+    });
+  }
+});
 </script>
 <?php footer_html(); ?>
